@@ -6,7 +6,7 @@ import os
 import socket
 
 # Set DEBUG = True if on the production server
-if socket.gethostname() == 'your.domain.com':
+if socket.gethostname() == 'viber.botchat26.ru':
     DEBUG = False
 else:
     DEBUG = True
@@ -85,10 +85,17 @@ if DEBUG:
 if USE_I18N:
     TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context_processors.i18n',)
 
+
 MIDDLEWARE_CLASSES = (
+    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+
 )
 
 if DEBUG:
@@ -96,7 +103,8 @@ if DEBUG:
 
 TEMPLATE_DIRS = ()
 for root, dirs, files in os.walk(PROJECT_PATH):
-    if 'templates' in dirs: TEMPLATE_DIRS += (os.path.join(root, 'templates'),)
+    if 'templates' in dirs:
+        TEMPLATE_DIRS += (os.path.join(root, 'templates'),)
 
 INSTALLED_APPS = (
 
@@ -136,15 +144,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
 
 ROOT_URLCONF = 'ViberBot.urls'
 
