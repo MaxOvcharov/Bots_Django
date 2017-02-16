@@ -118,3 +118,7 @@ try:
     from local_settings import *
 except ImportError:
     pass
+
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
