@@ -11,9 +11,8 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+
 # Application definition
-#APPEND_SLASH = False
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -103,10 +102,6 @@ USE_TZ = True
 
 STATIC_ROOT = '/home/django/Bots_Django/ViberBot/'
 STATIC_URL = '/static/'
-
-#CSRF_COOKIE_SECURE = True
-#SESSION_COOKIE_SECURE = True
-
 
 try:
     from local_settings import *
