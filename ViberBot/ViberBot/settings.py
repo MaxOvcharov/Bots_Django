@@ -107,11 +107,11 @@ USE_TZ = True
 STATIC_ROOT = '/home/django/Bots_Django/ViberBot/'
 STATIC_URL = '/static/'
 
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+
 try:
     from local_settings import *
 except ImportError:
     pass
-
-
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
