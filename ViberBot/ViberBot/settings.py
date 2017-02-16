@@ -143,6 +143,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+STATIC_ROOT = '/home/django/Bots_Django/ViberBot/static/'
 
 ROOT_URLCONF = 'ViberBot.urls'
 
