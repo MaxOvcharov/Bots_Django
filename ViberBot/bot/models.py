@@ -13,6 +13,7 @@ class Cities(models.Model):
         return "%s %s" % (self.city_name, self.author)
 
     class Meta:
+        db_table = 'cities'
         ordering = ["city_name"]
         verbose_name = "Города"
 
@@ -25,4 +26,5 @@ class CityPhotos(models.Model):
         return self.photo_url
 
     class Meta:
+        db_table = 'city_photos'
         verbose_name = "Города"
