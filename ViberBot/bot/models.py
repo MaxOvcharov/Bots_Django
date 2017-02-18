@@ -20,7 +20,7 @@ class Cities(models.Model):
 
 class CityPhotos(models.Model):
     photo_url = models.TextField(verbose_name="Ссылка на фото")
-    city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
+    city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
 
     def __str__(self):
         return self.photo_url

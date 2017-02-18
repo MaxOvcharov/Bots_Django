@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+import re
+import requests
 
 from django.core.management.base import BaseCommand, CommandError
-from bot.models import Cities, CityPhotos
 
-import requests
 from BeautifulSoup import BeautifulSoup
-import re
+
+from bot.models import Cities, CityPhotos
 
 
 class Command(BaseCommand):
@@ -36,15 +38,22 @@ class Command(BaseCommand):
                 img = images_urls[0:10]
             else:
                 img = images_urls
+            update_city = {'city_name': city_name,
+                           'city_url': city_url,
+                           'author': author}
 
             Cities.objects.update_or_create(city_name=city_name,
                                             city_url=city_url,
-                                            author=author)
+                                            author=author,
+                                            defaults=update_city)
 
-            city_id = Cities.objects.get(city_name=city_name).id
+            city_id = list(Cities.objects.get(city_name=city_name))[0]
 
             for url in img:
-                CityPhotos.objects.update_or_create(i photo_url)
+                update_photos = {'photo_url': url, 'city_id': city_id}
+                CityPhotos.objects.update_or_create(photo_url=url,
+                                                    city_id=city_id,
+                                                    defaults=update_photos)
 
 
 
