@@ -2,14 +2,13 @@
 from __future__ import absolute_import
 import re
 import requests
+from django.core.management.base import BaseCommand, CommandError
+from BeautifulSoup import BeautifulSoup
+from bot.models import Cities, CityPhotos
+
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
-from django.core.management.base import BaseCommand, CommandError
-
-from BeautifulSoup import BeautifulSoup
-
-from bot.models import Cities, CityPhotos
 
 
 class Command(BaseCommand):
@@ -44,18 +43,17 @@ class Command(BaseCommand):
                            'city_url': city_url,
                            'author': author}
 
-            obj, created = Cities.objects.update_or_create(city_name=city_name,
+            Cities.objects.update_or_create(city_name=city_name,
                                             city_url=city_url,
                                             author=author,
                                             defaults=update_city)
-	    #print obj, created
-            city_id = Cities.objects.get(city_name=city_name)
+
+            city_id = Cities.objects.get(city_name=city_name, author=author)
             for url in img:
-                update_photos = {'photo_url': url, 'city_id': city_id.id}
-                obj1, created1 = CityPhotos.objects.update_or_create(photo_url=url,
-                                                    city_id=city_id.id,
+                update_photos = {'photo_url': url, 'city_id': city_id}
+                CityPhotos.objects.update_or_create(photo_url=url,
+                                                    city_id=city_id,
                                                     defaults=update_photos)
-		#print obj1, created1
 
 
 
