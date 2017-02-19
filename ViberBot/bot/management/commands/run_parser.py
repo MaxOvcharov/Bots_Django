@@ -2,7 +2,9 @@
 from __future__ import absolute_import
 import re
 import requests
-
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 from django.core.management.base import BaseCommand, CommandError
 
 from BeautifulSoup import BeautifulSoup
@@ -42,19 +44,18 @@ class Command(BaseCommand):
                            'city_url': city_url,
                            'author': author}
 
-            Cities.objects.update_or_create(city_name=city_name,
+            obj, created = Cities.objects.update_or_create(city_name=city_name,
                                             city_url=city_url,
                                             author=author,
                                             defaults=update_city)
-
-            city_id = list(Cities.objects.get(city_name=city_name))[0]
-
+	    #print obj, created
+            city_id = Cities.objects.get(city_name=city_name)
             for url in img:
-                update_photos = {'photo_url': url, 'city_id': city_id}
-                CityPhotos.objects.update_or_create(photo_url=url,
-                                                    city_id=city_id,
+                update_photos = {'photo_url': url, 'city_id': city_id.id}
+                obj1, created1 = CityPhotos.objects.update_or_create(photo_url=url,
+                                                    city_id=city_id.id,
                                                     defaults=update_photos)
-
+		#print obj1, created1
 
 
 
