@@ -136,21 +136,21 @@ LOGGING = {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.FileHandler',
-            'filename': '/home/django/Bots_Django/logs/viber/django_dev.log',
+            'filename': '/home/django/logs/viber/django_dev.log',
             'formatter': 'verbose'
         },
         'production_logfile': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'logging.FileHandler',
-            'filename': '/home/django/Bots_Django/logs/viber/django_production.log',
+            'filename': '/home/django/logs/viber/django_production.log',
             'formatter': 'simple'
         },
         'dba_logfile': {
             'level': 'DEBUG',
             'filters': ['require_debug_false','require_debug_true'],
             'class': 'logging.FileHandler',
-            'filename': '/home/django/Bots_Django/logs/viber/django_dba.log',
+            'filename': '/home/django/logs/viber/django_dba.log',
             'formatter': 'simple'
         },
     },
