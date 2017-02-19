@@ -58,7 +58,8 @@ class Command(BaseCommand):
                                             defaults=update_city)
 
             city_id = Cities.objects.get(city_name=city_name, author=author)
-            for url in img:
+            logger.debug(city_id)
+	    for url in img:
                 update_photos = {'photo_url': url, 'city_id': city_id}
                 CityPhotos.objects.update_or_create(photo_url=url,
                                                     city_id=city_id,
