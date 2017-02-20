@@ -1,1 +1,3 @@
-* 8 * * Sun django python /home/django/Bots_Django/ViberBot/manage.py run_parser
+SHELL=/bin/bash
+
+* 8 * * Sun root /home/django/Bots_Django/venv/bin/python /home/django/Bots_Django/ViberBot/manage.py run_parser >> /home/django/logs/viber/cronlog.txt 2>&1

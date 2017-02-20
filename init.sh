@@ -43,11 +43,11 @@ while [ "$1" != "" ]; do
                             --systemd - restart systemd settings;
                             --cron - set and restart cron jobs;
                          " ; shift ;;
-        --start) nginx_settings ; supervisor_settings; systemd_setttings;;
-        --nginx) nginx_settings;;
-        --systemd) systemd_setttings;;
-        --supervisor) supervisor_settings;;
-        --cron) cron_timetable;;
+        --start) nginx_settings ; supervisor_settings; systemd_setttings; exit 1;;
+        --nginx) nginx_settings; exit 1;;
+        --systemd) systemd_setttings; exit 1;;
+        --supervisor) supervisor_settings; exit 1;;
+        --cron) cron_timetable; exit 1;;
         *) echo "Internal error!Check --help" ; exit 1 ;;
     esac
 done
