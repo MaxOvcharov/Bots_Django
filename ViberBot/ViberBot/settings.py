@@ -146,7 +146,7 @@ LOGGING = {
             'filename': '/home/django/logs/viber/django_production.log',
             'formatter': 'simple'
         },
-	'cron_timetable': {
+        'cron_timetable': {
             'level': 'DEBUG',
             'filters': ['require_debug_false'],
             'class': 'logging.FileHandler',
@@ -174,12 +174,11 @@ LOGGING = {
         'py.warnings': {
             'handlers': ['console', 'development_logfile'],
         },
-	'cron': {
+        'cron': {
             'handlers': ['cron_timetable', 'production_logfile'],
-	    'propagate': True,
-	    'level': 'DEBUG',
+            'propagate': True,
+            'level': 'DEBUG',
         },
-
     }
 }
 

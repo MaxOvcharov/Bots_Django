@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*
+# !/home/django/Bots_Django/venv/bin/python
+
+
 from __future__ import absolute_import
 import re
 import requests
