@@ -9,7 +9,7 @@ class Cities(models.Model):
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
 
-    def __str__(self):
+    def __unicode__(self):
         return "%s %s" % (self.city_name, self.author)
 
     class Meta:
@@ -22,9 +22,9 @@ class CityPhotos(models.Model):
     photo_url = models.TextField(verbose_name="Ссылка на фото")
     city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
 
-    def __str__(self):
+    def __unicode__(self):
         return self.photo_url
 
     class Meta:
         db_table = 'city_photos'
-        verbose_name = "Города"
+        verbose_name = "Фото городов"
