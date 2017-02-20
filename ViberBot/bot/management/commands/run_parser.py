@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 import re
 import requests
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from BeautifulSoup import BeautifulSoup
 from bot.models import Cities, CityPhotos
 
@@ -45,28 +45,23 @@ class Command(BaseCommand):
                 else:
                     img = images_urls
 
+                update_city = {'city_name': city_name,
+                               'city_url': city_url,
+                               'author': author}
+                Cities.objects.update_or_create(city_name=city_name,
+                                                city_url=city_url,
+                                                author=author,
+                                                defaults=update_city)
+
+                city_id = Cities.objects.get(city_name=city_name, author=author)
+                logger.debug(city_id)
+                for url in img:
+                    update_photos = {'photo_url': url, 'city_id': city_id}
+                    CityPhotos.objects.update_or_create(photo_url=url,
+                                                        city_id=city_id,
+                                                        defaults=update_photos)
+                logger.debug('All cities are updated')
         except Exception, e:
             logger.error(e)
-
-        try:
-            update_city = {'city_name': city_name,
-                           'city_url': city_url,
-                           'author': author}
-            Cities.objects.update_or_create(city_name=city_name,
-                                            city_url=city_url,
-                                            author=author,
-                                            defaults=update_city)
-
-            city_id = Cities.objects.get(city_name=city_name, author=author)
-            logger.debug(city_id)
-            for url in img:
-                update_photos = {'photo_url': url, 'city_id': city_id}
-                CityPhotos.objects.update_or_create(photo_url=url,
-                                                    city_id=city_id,
-                                                    defaults=update_photos)
-            logger.debug('All cities are updated')
-        except Exception, e:
-                logger.error(e)
-
 
 
