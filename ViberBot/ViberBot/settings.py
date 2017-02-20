@@ -146,6 +146,13 @@ LOGGING = {
             'filename': '/home/django/logs/viber/django_production.log',
             'formatter': 'simple'
         },
+	'cron_timetable': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'filename': '/home/django/logs/viber/django_cron.log',
+            'formatter': 'verbose'
+        },
         'dba_logfile': {
             'level': 'DEBUG',
             'filters': ['require_debug_false','require_debug_true'],
@@ -167,6 +174,12 @@ LOGGING = {
         'py.warnings': {
             'handlers': ['console', 'development_logfile'],
         },
+	'cron': {
+            'handlers': ['cron_timetable', 'production_logfile'],
+	    'propagate': True,
+	    'level': 'DEBUG',
+        },
+
     }
 }
 
