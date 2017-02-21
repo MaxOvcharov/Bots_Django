@@ -13,7 +13,8 @@ function nginx_settings
 # Supervisor settings
 function supervisor_settings
 {
-    sudo cp -v gunicorn.conf /etc/supervisor/conf.d/
+    sudo cp -v viber_gunicorn.conf /etc/supervisor/conf.d/
+    sudo cp -v telegram_gunicorn.conf /etc/supervisor/conf.d/
     sudo service supervisor restart
 }
 
@@ -21,6 +22,11 @@ function supervisor_settings
 function systemd_setttings
 {
     sudo cp -v ViberBotDjango.service /etc/systemd/system/
+    sudo cp -v TelegramBotDjango.service /etc/systemd/system/
+
+    sudo systemctl enable TelegramBotDjango.service
+    sudo systemctl start TelegramBotDjango.service
+
     sudo systemctl enable ViberBotDjango.service
     sudo systemctl start ViberBotDjango.service
     sudo systemctl daemon-reload
