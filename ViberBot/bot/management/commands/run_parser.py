@@ -40,13 +40,15 @@ class Command(BaseCommand):
                 author = href[2].findAll('a', text=re.compile(r'.*'))[0].encode('utf-8')
                 r = requests.get(city_url)
                 soup = BeautifulSoup(r.text)
-                images = soup.findAll('dl', {'class': 'gallery-item'})
-                images_urls = [url.findAll('a')[0].findAll('img')[0]['src'].encode('utf-8') for url in images]
-                if len(images_urls) > 10:
-                    img = images_urls[0:10]
-                else:
-                    img = images_urls
-
+                images = soup.findAll('dl', {'class': 'gallery-item'})[0:10]
+                images_href = [url.findAll('a')[0]['href'] for url in images]
+                img = []
+                for image in images_href:
+                    r = requests.get(image)
+                    soup = BeautifulSoup(r.text)
+                    images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
+                    img.append(images_urls)
+                # Insert content into DB
                 update_city = {'city_name': city_name,
                                'city_url': city_url,
                                'author': author}
@@ -64,5 +66,6 @@ class Command(BaseCommand):
             logger.info('All cities are updated')
         except Exception, e:
             logger.error(e)
+
 
 

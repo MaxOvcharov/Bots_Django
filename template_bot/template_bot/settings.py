@@ -115,7 +115,7 @@ USE_TZ = True
 # Before using nginx or apache make this command:
 # python manage.py collectstatic
 
-STATIC_ROOT = '/home/django/Bots_Django/template_bot/static'
+STATIC_ROOT = '/<path_to_project>/static'
 STATIC_URL = '/static/'
 
 # Before using logger create dirs /<path_to_project>/logs/ and
