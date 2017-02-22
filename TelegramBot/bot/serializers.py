@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib.auth.models import User, Group
-from bot.models import Cities, CityPhotos
+
+from models import Cities, CityPhotos
 from rest_framework import serializers
 
 

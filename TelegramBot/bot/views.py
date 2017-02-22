@@ -2,8 +2,10 @@
 
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
+
+from models import Cities, CityPhotos
 from rest_framework import viewsets
-from bot.serializers import UserSerializer, GroupSerializer
+from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, CityPhotosSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -20,3 +22,19 @@ class GroupViewSet(viewsets.ModelViewSet):
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+
+class CitiesViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows tests to be viewed or edited.
+    """
+    queryset = Cities.objects.all().order_by('city_name')
+    serializer_class = CityNamesSerializer
+
+
+class CityPhotosViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows tests to be viewed or edited.
+    """
+    queryset = CityPhotos.objects.all().order_by('city_id')
+    serializer_class = CityPhotosSerializer

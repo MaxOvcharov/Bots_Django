@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*
-# !/home/django/Bots_Django/venv/bin/python
-
 
 from __future__ import absolute_import
 import re
 import requests
-from django.core.management.base import BaseCommand
+import sys
+
 from BeautifulSoup import BeautifulSoup
 from bot.models import Cities, CityPhotos
+from django.core.management.base import BaseCommand
 
 import logging
 logger = logging.getLogger('cron')
 
-import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 

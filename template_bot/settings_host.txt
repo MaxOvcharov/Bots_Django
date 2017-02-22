@@ -1,0 +1,178 @@
+###################################################################################################
+#####                                                                                         #####
+##### Генерация и применение ssl сертификатов letsencrypt (Digital Ocean VPS on Ubuntu 16.04) #####
+#####                                                                                         #####
+###################################################################################################
+
+
+sudo apt-get update
+# Python 2.x.x
+sudo apt-get install python-pip python-dev nginx
+
+# Если необходимо установить Python 3.x.x раскоментировать 9 стороку
+# Python 3.x.x
+# sudo apt-get install python3-pip python3-dev nginx
+
+# Установка генератора сертификатов
+sudo apt-get install letsencrypt
+
+# Добавлем строки в /etc/nginx/sites-available/default
+#location ~ /.well-known {
+#                allow all;
+#        }
+
+# Заменяем root path на <path_to_your_project>
+#root /<path_to_your_project>
+sudo vim /etc/nginx/sites-available/default
+
+# Проверка корректности изменений
+sudo nginx -t
+
+# Перезапуск nginx
+sudo systemctl restart nginx
+
+# Генерация скрипта, предварительно доменное имя должно
+# быть привязано к хосту и настроен DNS
+sudo letsencrypt certonly -a webroot --webroot-path=/<!!! path_to_your_project !!!> -d <!!! www.example.com !!!>
+
+# Сертификат и приватный ключ лежат в
+sudo ls -l /etc/letsencrypt/live/your_domain_name
+
+# Генерируем усиленную группу(strong Diffie-Hellman group)
+sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+sudo ls -lah /etc/ssl/certs/dhparam.pem
+
+# Создаем снипет для ngnix с SSL Key и Certificate
+sudo vim /etc/nginx/snippets/ssl-<!!! example.com !!!>.conf
+
+#ssl_certificate /etc/letsencrypt/live/<!!! example.com !!!>/fullchain.pem;
+#ssl_certificate_key /etc/letsencrypt/live/<!!! example.com !!!>/privkey.pem;
+
+# Создаем снипет для ngnix с усиленным шифрованием
+sudo vim /etc/nginx/snippets/ssl-params.conf
+
+# from https://cipherli.st/
+# and https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+#
+# ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+# ssl_prefer_server_ciphers on;
+# ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+# ssl_ecdh_curve secp384r1;
+# ssl_session_cache shared:SSL:10m;
+# ssl_session_tickets off;
+# ssl_stapling on;
+# ssl_stapling_verify on;
+# resolver 8.8.8.8 8.8.4.4 valid=300s;
+# resolver_timeout 5s;
+# # Disable preloading HSTS for now.  You can use the commented out header line that includes
+# # the "preload" directive if you understand the implications.
+# #add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
+# add_header Strict-Transport-Security "max-age=63072000; includeSubdomains";
+# add_header X-Frame-Options DENY;
+# add_header X-Content-Type-Options nosniff;
+#
+# ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+# Создаем Конфигурацию для nginx с поддержкой SSL
+sudo rm -rf /etc/nginx/sites-enabled/*
+sudo chmod 777 nginx.conf
+
+# ВАЖНО изменить файл nginx.conf под свои данные
+sudo cp nginx.conf /etc/nginx/sites-enabled/nginx.conf
+sudo nginx -t
+sudo /etc/init.d/nginx restart
+
+# Настраиваем Firewall
+sudo ufw status
+# Базовые команды
+#sudo ufw allow 'Nginx Full' или sudo ufw allow 8000
+#sudo ufw delete allow 'Nginx HTTP'
+
+# Получить отчет о сгенерированном сертификате можно в Qualys SSL Labs Repor
+https://www.ssllabs.com/ssltest/analyze.html?d=<!!! example.com !!!>
+
+# Настроим обновление сертификата
+sudo letsencrypt renew
+sudo crontab -e
+
+# Вставить строки в cronetab
+# 30 2 * * 1 /usr/bin/letsencrypt renew >> /var/log/le-renew.log
+# 35 2 * * 1 /bin/systemctl reload nginx
+
+# Смотреть отчет можно в
+sudo tail -f /var/log/le-renewal.log
+
+###################################################################################################
+#####                                                                                         #####
+#####               Настройка связки NGINX + GUNICORN(Supervisor) + FLASK                     #####
+#####                                                                                         #####
+###################################################################################################
+
+# Устанавливаем virtualenv для Python 2.x.x
+sudo pip install virtualenv
+
+# Устанавливаем virtualenv для Python 3.x.x
+# sudo pip3 install virtualenv
+
+# Создаем каталог проекта
+mkdir ~/<!!! myproject !!!> && cd ~/<!!! myproject !!!>
+
+# Создаем виртуальное окружение
+virtualenv <!!! myprojectenv !!!>
+
+# Далее все инсталяции производим внутри окружения
+source <!!! myprojectenv !!!>/bin/activate
+pip install gunicorn flask
+
+# Создаем простой пример на Flask
+nano ~/<!!! myproject !!!>/<!!! myproject !!!>.py
+
+#from flask import Flask
+#app = Flask(__name__)
+#
+#@app.route("/")
+#def hello():
+#    return "<h1 style='color:blue'>Hello There!</h1>"
+#
+#if __name__ == "__main__":
+#    app.run(host='0.0.0.0', port=8000)
+
+# Открываем порт
+sudo ufw allow 5000
+
+# Создаем WSGI Entry Poin
+vim ~/<!!! myproject !!!>/wsgi.py
+
+#from myproject import app
+#
+#if __name__ == "__main__":
+#    app.run()
+
+# Выходим из окружения
+deactivate
+
+# Настраиваем Supervisor
+sudo apt-get install -y supervisor
+
+# ВАЖНО изменить файл gunicorn.conf под свои данные
+sudo cp gunicorn.conf /etc/supervisor/conf.d/
+sudo supervisord -c /etc/supervisor/supervisord.conf
+
+# Перезапуск Supervisor
+# ps aux | grep supervisor
+# sudo kill -9 <pip-supervisor>
+# sudo unlink /var/run/supervisor.sock
+
+# Создадим systemd Unit File для запуска
+# Пример в ViberBot.service. ВАЖНО изменить файл под свои данные
+sudo vim /etc/systemd/system/<!!! myproject !!!>.service
+
+# Применение настроек
+sudo systemctl start <!!! myproject !!!>
+
+# Отключить настройки
+#sudo systemctl enable <!!! myproject !!!>
+
+
+
+
