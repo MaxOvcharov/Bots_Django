@@ -23,7 +23,7 @@ class Command(BaseCommand):
             logger.info('Set web-hook')
             bot = telebot.TeleBot(BOT_TOKEN)
             bot.remove_webhook()
-            bot.set_webhook(url='https://{bot_url}/bot/{bot_token}/'
+            bot.set_webhook(url='https://{bot_url}/bot{bot_token}/'
                             .format(bot_token=BOT_TOKEN, bot_url=WEBHOOK_HOST))
             logger.info('Web-hook is set')
         except Exception, e:
