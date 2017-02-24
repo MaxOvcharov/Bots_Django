@@ -8,7 +8,10 @@ from TelegramBot.settings import BOT_TOKEN
 
 from models import Cities, CityPhotos
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, CityPhotosSerializer
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -46,12 +49,17 @@ class CityPhotosViewSet(viewsets.ModelViewSet):
     serializer_class = CityPhotosSerializer
 
 
-@api_view(['POST'])
-class CommandReceiveView(View):
+class CommandReceiveView(APIView):
 
-    # Handle '/start' and '/help'
-    @bot.message_handler(commands=['help', 'start'])
-    def send_welcome(self, message):
-        bot.reply_to(message,
-                     ("Hi there, I am EchoBot.\n"
-                      "I am here to echo your kind words back to you."))
+    def get(self, request, format=None):
+        """
+        Return a list of all users.
+        """
+
+        # Handle '/start' and '/help'
+        @bot.message_handler(commands=['help', 'start'])
+        def send_welcome(message):
+            bot.reply_to(message,
+                         ("Hi there, I am EchoBot.\n"
+                          "I am here to echo your kind words back to you."))
+            return Response()
