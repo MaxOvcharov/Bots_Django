@@ -3,15 +3,13 @@
 import telebot
 
 from django.contrib.auth.models import User, Group
-from django.views.generic import View
 from TelegramBot.settings import BOT_TOKEN
 
 from models import Cities, CityPhotos
 from rest_framework import viewsets
-
-from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
 from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, CityPhotosSerializer
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -50,10 +48,11 @@ class CityPhotosViewSet(viewsets.ModelViewSet):
 
 
 class CommandReceiveView(APIView):
+    permission_classes = (AllowAny,)
 
-    def get(self, request, format=None):
+    def post(self, request, format=None):
         """
-        Return a list of all users.
+            Handler of all telegram commands
         """
 
         # Handle '/start' and '/help'
@@ -62,4 +61,7 @@ class CommandReceiveView(APIView):
             bot.reply_to(message,
                          ("Hi there, I am EchoBot.\n"
                           "I am here to echo your kind words back to you."))
-            return Response()
+            return Response(status='200')
+
+    def get(self, request, format=None):
+        return Response({"message": "Hello for today! See you tomorrow!"})

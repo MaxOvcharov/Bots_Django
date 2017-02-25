@@ -18,6 +18,7 @@ from django.contrib import admin
 
 from bot import views
 from rest_framework import routers
+from django.views.decorators.csrf import csrf_exempt
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -29,5 +30,6 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^bot(?P<bot_token>.+)/$', views.CommandReceiveView.as_view(), name='command'),
+    url('^bot/[-_:a-zA-Z0-9]+/', csrf_exempt(views.CommandReceiveView.as_view()), name='command'),
 ]
+
