@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, CityPhotosSerializer
+import utils
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -69,10 +70,12 @@ class CommandReceiveView(APIView):
             @bot.message_handler(commands=['help'])
             def send_help_info(message):
                 logger.info('Get POST: {}'.format(data))
-                bot.reply_to(message,
-                             ("MaxTravelBot это Ваш личный помощник в путешествиию\n"
-                              "Введите любой город России и получите ТОП-10 фото\n"
-                              "достопримечательностей города."))
+                markup = utils.markup_city_finder()
+                bot.send_message(message.chat.id,
+                                 ("MaxTravelBot это Ваш личный помощник в путешествии.\n"
+                                  "Введите любой город России и получите ТОП-10 фото\n"
+                                  "достопримечательностей города."),
+                                 reply_markup=markup)
 
             # Handle '/start' command
             @bot.message_handler(commands=['start'])
