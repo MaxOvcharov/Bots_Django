@@ -70,6 +70,7 @@ class CommandReceiveView(APIView):
             @bot.message_handler(commands=['help'])
             def send_help_info(message):
                 logger.info('Get POST: {}'.format(data))
+                #bot.reply_to(message, "Test")
                 markup = utils.markup_city_finder()
                 bot.send_message(message.chat.id,
                                  ("MaxTravelBot это Ваш личный помощник в путешествии.\n"
@@ -81,10 +82,10 @@ class CommandReceiveView(APIView):
             @bot.message_handler(commands=['start'])
             def send_welcome(message):
                 logger.info('Get POST: {}'.format(data))
-                bot.reply_to(message,
+                bot.send_message(message.chat.id,
                              ("Привет, я твой личный помощник и могу показать\n"
-                              "тебе интересные места в городе. Какой город мне найти? :)"))
-
+                              "тебе интересные места в городе.\n"
+                              "Какой город мне найти?"))
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
             logger.error(e)
