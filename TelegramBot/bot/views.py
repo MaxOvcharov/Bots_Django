@@ -7,7 +7,7 @@ from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
 
 from models import Cities, CityPhotos
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -57,7 +57,14 @@ class CommandReceiveView(APIView):
         """
             Handler of all telegram commands
         """
-        logger.info('Get POST: {}'.format(request.body.decode('utf-8')))
+        try:
+            data = request.data
+            logger.info('Get POST: {}'.format(data))
+        except ValueError:
+            return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
+        else:
+            update = telebot.types.Update.de_json(data)
+            bot.process_new_updates([update])
         try:
             # Handle '/start' and '/help'
             @bot.message_handler(commands=['help', 'start'])
