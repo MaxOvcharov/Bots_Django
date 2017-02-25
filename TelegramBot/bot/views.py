@@ -59,20 +59,30 @@ class CommandReceiveView(APIView):
         """
         try:
             data = request.data
-            logger.info('Get POST: {}'.format(data))
         except ValueError:
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
         else:
             update = telebot.types.Update.de_json(data)
             bot.process_new_updates([update])
         try:
-            # Handle '/start' and '/help'
-            @bot.message_handler(commands=['help', 'start'])
-            def send_welcome(message):
+            # Handle '/help' command
+            @bot.message_handler(commands=['help'])
+            def send_help_info(message):
+                logger.info('Get POST: {}'.format(data))
                 bot.reply_to(message,
-                             ("Hi there, I am EchoBot.\n"
-                              "I am here to echo your kind words back to you."))
-            return Response(status='200')
+                             ("MaxTravelBot это Ваш личный помощник в путешествиию\n"
+                              "Введите любой город России и получите ТОП-10 фото\n"
+                              "достопримечательностей города."))
+
+            # Handle '/start' command
+            @bot.message_handler(commands=['start'])
+            def send_welcome(message):
+                logger.info('Get POST: {}'.format(data))
+                bot.reply_to(message,
+                             ("Привет, я твой личный помощник и могу показать\n"
+                              "тебе интересные места в городе. Какой город мне найти? :)"))
+
+            return Response(status=status.HTTP_200_OK)
         except Exception, e:
             logger.error(e)
 
