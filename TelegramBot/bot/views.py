@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import telebot
+import logging
 
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
@@ -13,6 +14,8 @@ from rest_framework.views import APIView
 from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, CityPhotosSerializer
 
 bot = telebot.TeleBot(BOT_TOKEN)
+
+logger = logging.getLogger('telegram')
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -54,14 +57,17 @@ class CommandReceiveView(APIView):
         """
             Handler of all telegram commands
         """
-
-        # Handle '/start' and '/help'
-        @bot.message_handler(commands=['help', 'start'])
-        def send_welcome(message):
-            bot.reply_to(message,
-                         ("Hi there, I am EchoBot.\n"
-                          "I am here to echo your kind words back to you."))
+        logger.info('Get POST: {}'.format(request.body.decode('utf-8')))
+        try:
+            # Handle '/start' and '/help'
+            @bot.message_handler(commands=['help', 'start'])
+            def send_welcome(message):
+                bot.reply_to(message,
+                             ("Hi there, I am EchoBot.\n"
+                              "I am here to echo your kind words back to you."))
             return Response(status='200')
+        except Exception, e:
+            logger.error(e)
 
     def get(self, request, format=None):
         return Response({"message": "Hello for today! See you tomorrow!"})

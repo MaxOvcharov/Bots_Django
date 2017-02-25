@@ -164,6 +164,13 @@ LOGGING = {
             'filename': '/home/django/logs/telegram/django_cron.log',
             'formatter': 'verbose'
         },
+        'telegram_logfile': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'filename': '/home/django/logs/telegram/django_telegram.log',
+            'formatter': 'verbose'
+        },
         'dba_logfile': {
             'level': 'DEBUG',
             'filters': ['require_debug_false','require_debug_true'],
@@ -187,6 +194,11 @@ LOGGING = {
         },
         'cron': {
             'handlers': ['cron_timetable', 'production_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'telegram': {
+            'handlers': ['telegram_logfile'],
             'propagate': True,
             'level': 'DEBUG',
         },
