@@ -70,25 +70,27 @@ class CommandReceiveView(APIView):
             @bot.message_handler(commands=['help'])
             def send_help_info(message):
                 logger.info('Get POST: {}'.format(data))
-                #bot.reply_to(message, "Test")
                 markup = utils.markup_city_finder()
-                bot.send_message(message.chat.id,
-                                 ("MaxTravelBot это Ваш личный помощник в путешествии.\n"
-                                  "Введите любой город России и получите ТОП-10 фото\n"
-                                  "достопримечательностей города."),
-                                 reply_markup=markup)
+                msg = bot.send_message(message.chat.id,
+                                       ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
+                                        "Введите любой город России и получите ТОП-10 фото\n"
+                                        "достопримечательностей города."), reply_markup=markup)
+                bot.register_next_step_handler(msg, lambda m: utils.help_keyboard_handler(m, bot=bot))
+
 
             # Handle '/start' command
             @bot.message_handler(commands=['start'])
             def send_welcome(message):
                 logger.info('Get POST: {}'.format(data))
                 bot.send_message(message.chat.id,
-                             ("Привет, я твой личный помощник и могу показать\n"
-                              "тебе интересные места в городе.\n"
-                              "Какой город мне найти?"))
+                                 ("Привет, я твой личный помощник и могу показать\n"
+                                  "тебе интересные места в городе.\n"
+                                  "Какой город мне найти?"))
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
             logger.error(e)
 
     def get(self, request, format=None):
         return Response({"message": "Hello for today! See you tomorrow!"})
+
+
