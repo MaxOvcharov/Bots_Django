@@ -75,8 +75,7 @@ class CommandReceiveView(APIView):
                                        ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
                                         "Введите любой город России и получите ТОП-10 фото\n"
                                         "достопримечательностей города."), reply_markup=markup)
-                bot.register_next_step_handler(msg, lambda m: utils.help_keyboard_handler(m, bot=bot))
-
+		bot.register_next_step_handler(msg, utils.help_keyboard_handler)
 
             # Handle '/start' command
             @bot.message_handler(commands=['start'])
