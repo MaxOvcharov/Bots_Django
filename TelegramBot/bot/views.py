@@ -65,17 +65,20 @@ class CommandReceiveView(APIView):
         else:
             update = telebot.types.Update.de_json(data)
             bot.process_new_updates([update])
+            userStep = {}
         try:
             # Handle '/help' command
             @bot.message_handler(commands=['help'])
             def send_help_info(message):
-                logger.info('Get POST: {}'.format(data))
+                logger.info('Get POST: {}'.format(message.chat.id))
                 markup = utils.markup_city_finder()
                 msg = bot.send_message(message.chat.id,
                                        ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
                                         "Введите любой город России и получите ТОП-10 фото\n"
                                         "достопримечательностей города."), reply_markup=markup)
                 bot.register_next_step_handler(msg, utils.help_keyboard_handler)
+                userStep[message.chat.id] = 1                
+                logger.info('TEST')
 
             # Handle '/start' command
             @bot.message_handler(commands=['start'])
@@ -86,11 +89,24 @@ class CommandReceiveView(APIView):
                                   "тебе интересные места в городе.\n"
                                   "Какой город мне найти?"))
             return Response(status=status.HTTP_200_OK)
+            
+            @bot.message_handler(func=lambda message: True) # get_user_step(message.chat.id) == 1)
+            def send_city_content(message):
+                logger.info(message.text)
+                #lst_city_photos = utils.get_city(str(message.text).encode('utf-8'))
+                #bot.send_message(message.chat.id,lst_city_photos)
+                        
 
         except Exception, e:
             logger.error(e)
 
     def get(self, request, format=None):
         return Response({"message": "Hello for today! See you tomorrow!"})
-
+    
+    def get_user_step(uid):
+        if uid in userStep:
+       	    return userStep[uid]
+        else:
+            userStep[uid] = 0
+            return 0
 

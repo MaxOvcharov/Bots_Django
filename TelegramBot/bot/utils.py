@@ -38,14 +38,8 @@ def help_keyboard_handler(message):
     if message.text == u'Ввести название города':
         logger.debug(message.text)
         msg = bot.send_message(message.chat.id, 'Теперь введите название города с клавиатуры')
-        logger.debug(msg)
-        try:
-            bot.register_next_step_handler(msg, get_city)
-        except Exception as e:
-            logger.error(e)
-            bot.reply_to(message, 'oooops')
-        # bot.send_message(message.chat.id, lst_city_photos)
-        # bot.register_next_step_handler(msg, help_keyboard_handler_stp1())
+        bot.register_next_step_handler(msg, get_city)
+        return
     elif str(message.text).encode('utf-8') == 'Определить по Вашим геоданным':
         # func2()
         pass
@@ -54,15 +48,11 @@ def help_keyboard_handler(message):
         pass
 
 
-def get_city(message):
-    logger.debug(message.text)
-    # city_name = str(message.text).encode('utf-8')
-    # logger.debug(type(city_name))
-    #
-    # try:
-    #     city = Cities.objects.get(city_name=city_name)
-    #     bot.send_message(message.chat.id, 'City name: {0}, City URL: {1}, Author of photos: {2}'.
-    #                      format(city.city_name, city.city_url, city.author))
-    # except Cities.DoesNotExist:
-    #     bot.send_message(message.chat.id, 'К сожалению нет такого города... :(')
-
+def get_city(city_name):
+    try:
+        city = Cities.objects.get(city_name=city_name)
+        return 'City name: {0}, City URL: {1}, Author of photos: {2}'.format(city.city_name, 
+                                                                             city.city_url,
+                                                                             city.author)
+    except Cities.DoesNotExist:
+        return 'К сожалению нет такого города... :('

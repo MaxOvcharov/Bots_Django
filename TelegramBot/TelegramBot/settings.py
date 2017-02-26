@@ -198,7 +198,7 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'telegram': {
-            'handlers': ['telegram_logfile'],
+            'handlers': ['telegram_logfile', 'production_logfile'],
             'propagate': True,
             'level': 'DEBUG',
         },
