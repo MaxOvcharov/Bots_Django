@@ -77,7 +77,7 @@ class CommandReceiveView(APIView):
                                         "Введите любой город России и получите ТОП-10 фото\n"
                                         "достопримечательностей города."), reply_markup=markup)
                 bot.register_next_step_handler(msg, utils.help_keyboard_handler)
-                userStep[message.chat.id] = 1                
+                userStep[message.chat.id] = 1
                 logger.info('TEST')
 
             # Handle '/start' command
@@ -88,25 +88,19 @@ class CommandReceiveView(APIView):
                                  ("Привет, я твой личный помощник и могу показать\n"
                                   "тебе интересные места в городе.\n"
                                   "Какой город мне найти?"))
-            return Response(status=status.HTTP_200_OK)
-            
-            @bot.message_handler(func=lambda message: True) # get_user_step(message.chat.id) == 1)
+
+            @bot.message_handler(func=lambda message: utils.get_user_step(message.chat.id, userStep) == 1)
             def send_city_content(message):
                 logger.info(message.text)
-                #lst_city_photos = utils.get_city(str(message.text).encode('utf-8'))
-                #bot.send_message(message.chat.id,lst_city_photos)
-                        
+                lst_city_photos = utils.get_city(str(message.text).encode('utf-8'))
+                bot.send_message(message.chat.id, lst_city_photos)
 
+            return Response(status=status.HTTP_200_OK)
         except Exception, e:
             logger.error(e)
 
     def get(self, request, format=None):
         return Response({"message": "Hello for today! See you tomorrow!"})
     
-    def get_user_step(uid):
-        if uid in userStep:
-       	    return userStep[uid]
-        else:
-            userStep[uid] = 0
-            return 0
+
 
