@@ -92,7 +92,7 @@ class CommandReceiveView(APIView):
             @bot.message_handler(func=lambda message: utils.get_user_step(message.chat.id, userStep) == 1)
             def send_city_content(message):
                 logger.info(message.text)
-                lst_city_photos = utils.get_city(str(message.text).encode('utf-8'))
+                lst_city_photos = utils.get_city(message.text)
                 bot.send_message(message.chat.id, lst_city_photos)
 
             return Response(status=status.HTTP_200_OK)

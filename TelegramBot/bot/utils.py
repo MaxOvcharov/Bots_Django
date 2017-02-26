@@ -50,6 +50,7 @@ def help_keyboard_handler(message):
 
 def get_city(city_name):
     try:
+        logger.debug(city_name)
         city = Cities.objects.get(city_name=city_name)
         return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
                .format(city.city_name, city.city_url, city.author)
