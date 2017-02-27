@@ -66,7 +66,7 @@ class CommandReceiveView(APIView):
         else:
             update = telebot.types.Update.de_json(data)
             bot.process_new_updates([update])
-            user_step = {}
+
         try:
             # Handle '/help' command
             @bot.message_handler(commands=['help'])
@@ -86,23 +86,12 @@ class CommandReceiveView(APIView):
                                        ("Привет, я твой личный помощник и могу показать\n"
                                         "тебе интересные места в городе.\n"
                                         "Какой город мне найти?"), reply_markup=markup)
-                bot.register_next_step_handler(msg, utils.help_keyboard_handler(user_step))
-                time.sleep(1)
-                user_step[message.chat.id] = 1
-
-            @bot.message_handler(func=lambda message: utils.get_user_step(message.chat.id, user_step) == 1)
-            def send_city_content(message):
-                logger.info(message.text)
-                lst_city_photos = utils.get_city(message.text)
-                bot.send_message(message.chat.id, lst_city_photos)
-                user_step[message.chat.id] = 0
+                bot.register_next_step_handler(msg, utils.help_keyboard_handler)
 
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
             logger.error(e)
 
-    def get(self, request, format=None):
-        return Response({"message": "Hello for today! See you tomorrow!"})
     
 
 

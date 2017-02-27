@@ -7,11 +7,15 @@ from django.db import models
 
 class Cities(models.Model):
     city_name = models.CharField(max_length=80, verbose_name="Название города")
+    city_name_en = models.CharField(max_length=80, verbose_name="Английское название города")
+    geo_latitude = models.FloatField(null=True, blank=True, default=None)
+    geo_longitude = models.FloatField(null=True, blank=True, default=None)
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
 
     def __unicode__(self):
-        return "City name: %s; Author: %s;" % (self.city_name, self.author)
+        return "City name(en): %s; City name: %s; Author: %s;" % \
+               (self.city_name_en, self.city_name, self.author)
 
     class Meta:
         db_table = 'cities'
@@ -24,7 +28,7 @@ class CityPhotos(models.Model):
     city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
 
     def __unicode__(self):
-        return 'Photo URL: %s' % (self.photo_url)
+        return 'Photo URL: %s' % self.photo_url
 
     class Meta:
         db_table = 'city_photos'

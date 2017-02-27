@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*
 
 from __future__ import absolute_import
+import geocoder
 import re
 import requests
 import sys
@@ -48,11 +49,18 @@ class Command(BaseCommand):
                     soup = BeautifulSoup(r.text)
                     images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
                     img.append(images_urls)
+                city_name_en = get_city_name_en(city_name)
                 # Insert content into DB
                 update_city = {'city_name': city_name,
+                               'city_name_en': city_name_en['city'],
+                               'geo_latitude': city_name_en['latitude'],
+                               'geo_longitude': city_name_en['longitude'],
                                'city_url': city_url,
                                'author': author}
                 Cities.objects.update_or_create(city_name=city_name,
+                                                city_name_en=city_name_en['city'],
+                                                geo_latitude=city_name_en['latitude'],
+                                                geo_longitude=city_name_en['longitude'],
                                                 city_url=city_url,
                                                 author=author,
                                                 defaults=update_city)
@@ -66,5 +74,15 @@ class Command(BaseCommand):
             logger.info('All cities are updated')
         except Exception, e:
             logger.error(e)
+
+
+def get_city_name_en(city_name):
+    result = {}
+    g = geocoder.google(city_name)
+    result['city'] = str(g.geojson['properties']['city']).encode('utf-8')
+    result['latitude'] = g.geojson['geometry']['coordinates'][0]
+    result['longitude'] = g.geojson['geometry']['coordinates'][1]
+    return result
+
 
 
