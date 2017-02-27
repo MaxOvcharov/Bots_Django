@@ -24,10 +24,9 @@ def markup_city_finder():
                                        resize_keyboard=True,
                                        row_width=1)
     # Create all buttons
-    btn1 = types.KeyboardButton('Ввести название города')
-    btn2 = types.KeyboardButton('Определить по Вашим геоданным', request_location=True)
-    btn3 = types.KeyboardButton('Показать случайный')
-    markup.add(btn1, btn2, btn3)
+    btn1 = types.KeyboardButton('Определить по Вашим геоданным', request_location=True)
+    btn2 = types.KeyboardButton('Показать случайный')
+    markup.add(btn1, btn2)
 
     return markup
 
@@ -40,20 +39,22 @@ def help_keyboard_handler(message):
 
     if message.location:
         logger.debug(message.location)
-        geo_data = geocoder.google([message.location['latitude'],
-                                    message.location['longitude']],
+        geo_data = geocoder.google([message.location.latitude,
+                                    message.location.longitude],
                                    method='reverse')
         city_name = geo_data.city
-        bot.send_message(message.chat.id, get_city_en(city_name))
+        logger.debug(type(city_name))
+        res = get_city_en(city_name) 
+        bot.send_message(message.chat.id, res)
 
     elif message.text == u'Показать случайный':
         # func3()
         pass
 
-    else:
+    elif message.text == u'/help' or message.text == u'/start':
         logger.debug(message.text)
-        lst_city_photos = get_city_ru(message.text)
-        bot.send_message(message.chat.id, lst_city_photos)
+        #lst_city_photos = get_city_ru(message.text)
+        #bot.send_message(message.chat.id, lst_city_photos)
 
 
 def get_city_ru(city_name):
@@ -78,7 +79,7 @@ def get_city_en(city_name):
         :return: string of photos URLs
     """
     try:
-        city = Cities.objects.get(city_name=city_name)
+        city = Cities.objects.get(city_name_en=city_name)
         return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
                .format(city.city_name, city.city_url, city.author)
     except Cities.DoesNotExist:

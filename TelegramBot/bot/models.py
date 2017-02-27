@@ -7,9 +7,9 @@ from django.db import models
 
 class Cities(models.Model):
     city_name = models.CharField(max_length=80, verbose_name="Название города")
-    city_name_en = models.CharField(max_length=80, verbose_name="Английское название города")
-    geo_latitude = models.FloatField(null=True, blank=True, default=None)
-    geo_longitude = models.FloatField(null=True, blank=True, default=None)
+    city_name_en = models.CharField(max_length=80, default='test', verbose_name="Английское название города")
+    geo_latitude = models.FloatField(null=True, blank=True, default=0.0)
+    geo_longitude = models.FloatField(null=True, blank=True, default=0.0)
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
 
