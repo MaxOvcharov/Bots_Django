@@ -43,46 +43,93 @@ class Command(BaseCommand):
                 soup = BeautifulSoup(r.text)
                 images = soup.findAll('dl', {'class': 'gallery-item'})[0:10]
                 images_href = [url.findAll('a')[0]['href'] for url in images]
-                img = []
-                for image in images_href:
-                    r = requests.get(image)
-                    soup = BeautifulSoup(r.text)
-                    images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
-                    img.append(images_urls)
+                # get TOP 10 images urls
+                img_url_lst = get_img_urls(images_href)
+                # get city name in English
                 city_name_en = get_city_name_en(city_name)
-                # Insert content into DB
+                # Update or create Cities table
                 update_city = {'city_name': city_name,
                                'city_name_en': city_name_en['city'],
                                'geo_latitude': city_name_en['latitude'],
                                'geo_longitude': city_name_en['longitude'],
                                'city_url': city_url,
                                'author': author}
-                Cities.objects.update_or_create(city_name=city_name,
-                                                city_name_en=city_name_en['city'],
-                                                geo_latitude=city_name_en['latitude'],
-                                                geo_longitude=city_name_en['longitude'],
-                                                city_url=city_url,
-                                                author=author,
-                                                defaults=update_city)
-
-                city_id = Cities.objects.get(city_name=city_name, author=author)
-                for url in img:
-                    update_photos = {'photo_url': url, 'city_id': city_id}
-                    CityPhotos.objects.update_or_create(photo_url=url,
-                                                        city_id=city_id,
-                                                        defaults=update_photos)
+                update_cities_table(update_city)
+                # Update or create City_photos table
+                update_city_photos_table(img_url_lst, city_name, author)
             logger.info('All cities are updated')
         except Exception, e:
             logger.error(e)
 
 
 def get_city_name_en(city_name):
-    result = {}
+    """
+        Get city name (Eng) by city name(Ru)
+        :param city_name: city name(Ru)
+        :return: Dict of city name(Eng), location(latitude), location(longitude)
+    """
+    geo_data = {}
     g = geocoder.google(city_name)
-    result['city'] = str(g.geojson['properties']['city']).encode('utf-8')
-    result['latitude'] = g.geojson['geometry']['coordinates'][0]
-    result['longitude'] = g.geojson['geometry']['coordinates'][1]
-    return result
+    geo_data['city'] = str(g.geojson['properties']['city']).encode('utf-8')
+    geo_data['latitude'] = g.geojson['geometry']['coordinates'][0]
+    geo_data['longitude'] = g.geojson['geometry']['coordinates'][1]
+    return geo_data
 
 
+def get_img_urls(images_href):
+    """
+        Get image url from html <a href="..."> tag
+        :param images_href: list of html <a href="..."> tag
+        :return: list of image urls
+    """
+    try:
+        img_lst = []
+        for image in images_href:
+            r = requests.get(image)
+            soup = BeautifulSoup(r.text)
+            images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
+            img_lst.append(images_urls)
+    except Exception, e:
+        logger.error(e)
+    return img_lst
+
+
+def update_cities_table(update_city):
+    """
+        Update or create Cities table
+        :param update_city: all Cities table fields
+        :return: None
+    """
+    try:
+        Cities.objects.update_or_create(city_name=update_city['city_name'],
+                                        city_name_en=update_city['city_name_en'],
+                                        geo_latitude=update_city['geo_latitude'],
+                                        geo_longitude=update_city['geo_longitude'],
+                                        city_url=update_city['city_url'],
+                                        author=update_city['author'],
+                                        defaults=update_city)
+    except Cities.DoesNotExist, e:
+        logger.error(e)
+
+
+def update_city_photos_table(img_url_lst, city_name, author):
+    """
+        Update or create CityPhotos table
+        :param img_url_lst: list of image urls
+        :param city_name: city name
+        :param author: photos author name
+        :return: None
+    """
+    try:
+        city_id = Cities.objects.get(city_name=city_name, author=author)
+    except Cities.DoesNotExist, e:
+        logger.error(e)
+    try:
+        for url in img_url_lst:
+            update_photos = {'photo_url': url, 'city_id': city_id}
+            CityPhotos.objects.update_or_create(photo_url=url,
+                                                city_id=city_id,
+                                                defaults=update_photos)
+    except CityPhotos.DoesNotExist, e:
+        logger.error(e)
 
