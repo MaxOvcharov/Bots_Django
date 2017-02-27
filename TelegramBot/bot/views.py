@@ -2,6 +2,7 @@
 
 import telebot
 import logging
+import time
 
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
@@ -65,35 +66,36 @@ class CommandReceiveView(APIView):
         else:
             update = telebot.types.Update.de_json(data)
             bot.process_new_updates([update])
-            userStep = {}
+            user_step = {}
         try:
             # Handle '/help' command
             @bot.message_handler(commands=['help'])
             def send_help_info(message):
-                logger.info('Get POST: {}'.format(message.chat.id))
-                markup = utils.markup_city_finder()
-                msg = bot.send_message(message.chat.id,
-                                       ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
-                                        "Введите любой город России и получите ТОП-10 фото\n"
-                                        "достопримечательностей города."), reply_markup=markup)
-                bot.register_next_step_handler(msg, utils.help_keyboard_handler)
-                userStep[message.chat.id] = 1
-                logger.info('TEST')
+                logger.info('HELP: {0}'.format(message.chat.id))
+                bot.send_message(message.chat.id,
+                                 ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
+                                  "Введите любой город России и получите ТОП-10 фото\n"
+                                  "достопримечательностей города."))
 
             # Handle '/start' command
             @bot.message_handler(commands=['start'])
             def send_welcome(message):
-                logger.info('Get POST: {}'.format(data))
-                bot.send_message(message.chat.id,
-                                 ("Привет, я твой личный помощник и могу показать\n"
-                                  "тебе интересные места в городе.\n"
-                                  "Какой город мне найти?"))
+                logger.info('START: {0}'.format(message.chat.id))
+                markup = utils.markup_city_finder()
+                msg = bot.send_message(message.chat.id,
+                                       ("Привет, я твой личный помощник и могу показать\n"
+                                        "тебе интересные места в городе.\n"
+                                        "Какой город мне найти?"), reply_markup=markup)
+                bot.register_next_step_handler(msg, utils.help_keyboard_handler(user_step))
+                time.sleep(1)
+                user_step[message.chat.id] = 1
 
-            @bot.message_handler(func=lambda message: utils.get_user_step(message.chat.id, userStep) == 1)
+            @bot.message_handler(func=lambda message: utils.get_user_step(message.chat.id, user_step) == 1)
             def send_city_content(message):
                 logger.info(message.text)
                 lst_city_photos = utils.get_city(message.text)
                 bot.send_message(message.chat.id, lst_city_photos)
+                user_step[message.chat.id] = 0
 
             return Response(status=status.HTTP_200_OK)
         except Exception, e:

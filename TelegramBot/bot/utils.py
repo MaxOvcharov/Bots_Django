@@ -13,6 +13,7 @@ logger = logging.getLogger('telegram')
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
+
 def markup_city_finder():
     """
         Generate keyboard - "City finder"
@@ -38,8 +39,7 @@ def help_keyboard_handler(message):
     if message.text == u'Ввести название города':
         logger.debug(message.text)
         msg = bot.send_message(message.chat.id, 'Теперь введите название города с клавиатуры')
-        bot.register_next_step_handler(msg, get_city)
-        return
+
     elif str(message.text).encode('utf-8') == 'Определить по Вашим геоданным':
         # func2()
         pass
