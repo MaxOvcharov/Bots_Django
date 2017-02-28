@@ -68,12 +68,15 @@ def get_city_name_en(city_name):
         :param city_name: city name(Ru)
         :return: Dict of city name(Eng), location(latitude), location(longitude)
     """
-    geo_data = {}
-    g = geocoder.google(city_name)
-    geo_data['city'] = str(g.geojson['properties']['city']).encode('utf-8')
-    geo_data['latitude'] = g.geojson['geometry']['coordinates'][0]
-    geo_data['longitude'] = g.geojson['geometry']['coordinates'][1]
-    return geo_data
+    try:
+        geo_data = {}
+        g = geocoder.google(city_name)
+        geo_data['city'] = str(g.geojson['properties']['city']).encode('utf-8')
+        geo_data['latitude'] = g.geojson['geometry']['coordinates'][0]
+        geo_data['longitude'] = g.geojson['geometry']['coordinates'][1]
+        return geo_data
+    except Exception, e:
+        logger.error(e)
 
 
 def get_img_urls(images_href):
@@ -89,9 +92,9 @@ def get_img_urls(images_href):
             soup = BeautifulSoup(r.text)
             images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
             img_lst.append(images_urls)
+        return img_lst
     except Exception, e:
         logger.error(e)
-    return img_lst
 
 
 def update_cities_table(update_city):
