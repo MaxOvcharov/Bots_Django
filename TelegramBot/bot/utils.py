@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 import geocoder
 import logging
+from random import randint
 import telebot
 from telebot import types
 
@@ -43,13 +44,12 @@ def help_keyboard_handler(message):
                                     message.location.longitude],
                                    method='reverse')
         city_name = geo_data.city
-        logger.debug(type(city_name))
-        res = get_city_en(city_name) 
-        bot.send_message(message.chat.id, res)
+        res = get_city_en(city_name)
+        logger.debug(res)
+        #bot.send_message(message.chat.id, res)
 
     elif message.text == u'Показать случайный':
-        # func3()
-        pass
+        bot.send_message(message.chat.id, get_random_city())
 
     elif message.text == u'/help' or message.text == u'/start':
         logger.debug(message.text)
@@ -57,9 +57,22 @@ def help_keyboard_handler(message):
         #bot.send_message(message.chat.id, lst_city_photos)
 
 
+def get_random_city():
+    """
+            Get photos by random city ID
+            :return: string of photos URLs
+        """
+    try:
+        city = Cities.objects.get(pk=randint(1, 350))
+        return 'City name: {0}, City URL: {1}, Author of photos: {2}' \
+            .format(city.city_name, city.city_url, city.author)
+    except Cities.DoesNotExist:
+        return 'К сожалению нет такого города... :('
+
+
 def get_city_ru(city_name):
     """
-        Get photos by city name(english version)
+        Get photos by city name(RU version)
         :param city_name:
         :return: string of photos URLs
     """

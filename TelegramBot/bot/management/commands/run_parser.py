@@ -50,8 +50,10 @@ class Command(BaseCommand):
                 # Update or create Cities table
                 update_city = {'city_name': city_name,
                                'city_name_en': city_name_en['city'],
-                               'geo_latitude': city_name_en['latitude'],
-                               'geo_longitude': city_name_en['longitude'],
+                               'geo_latitude_min': city_name_en['latitude_min'],
+                               'geo_latitude_max': city_name_en['latitude_max'],
+                               'geo_longitude_min': city_name_en['longitude_min'],
+                               'geo_longitude_max': city_name_en['longitude_max'],
                                'city_url': city_url,
                                'author': author}
                 update_cities_table(update_city)
@@ -59,7 +61,7 @@ class Command(BaseCommand):
                 update_city_photos_table(img_url_lst, city_name, author)
             logger.info('All cities are updated')
         except Exception, e:
-            logger.error(e)
+            logger.error(str(e) + '--> {0}'.format(city_name))
 
 
 def get_city_name_en(city_name):
@@ -68,15 +70,17 @@ def get_city_name_en(city_name):
         :param city_name: city name(Ru)
         :return: Dict of city name(Eng), location(latitude), location(longitude)
     """
+    geo_data = {}
     try:
-        geo_data = {}
         g = geocoder.google(city_name)
-        geo_data['city'] = str(g.geojson['properties']['city']).encode('utf-8')
-        geo_data['latitude'] = g.geojson['geometry']['coordinates'][0]
-        geo_data['longitude'] = g.geojson['geometry']['coordinates'][1]
+        geo_data['city'] = str(g.geojson['properties']['address'].split(",")).encode('utf-8')
+        geo_data['longitude_min'] = g.geojson['properties']['bbox'][0]
+        geo_data['longitude_max'] = g.geojson['properties']['bbox'][2]
+        geo_data['latitude_min'] = g.geojson['properties']['bbox'][1]
+        geo_data['latitude_max'] = g.geojson['properties']['bbox'][3]
         return geo_data
     except Exception, e:
-        logger.error(e)
+        logger.error(str(e) + '-->City name: {0} and  Geo data: {1}'.format(city_name, geo_data))
 
 
 def get_img_urls(images_href):
@@ -106,8 +110,10 @@ def update_cities_table(update_city):
     try:
         Cities.objects.update_or_create(city_name=update_city['city_name'],
                                         city_name_en=update_city['city_name_en'],
-                                        geo_latitude=update_city['geo_latitude'],
-                                        geo_longitude=update_city['geo_longitude'],
+                                        geo_latitude_min=update_city['geo_latitude_min'],
+                                        geo_latitude_max=update_city['geo_latitude_max'],
+                                        geo_longitude_min=update_city['geo_longitude_min'],
+                                        geo_longitude_max=update_city['geo_longitude_max'],
                                         city_url=update_city['city_url'],
                                         author=update_city['author'],
                                         defaults=update_city)
