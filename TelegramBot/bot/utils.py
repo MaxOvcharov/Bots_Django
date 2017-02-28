@@ -46,15 +46,16 @@ def help_keyboard_handler(message):
         city_name = geo_data.city
         res = get_city_en(city_name)
         logger.debug(res)
-        #bot.send_message(message.chat.id, res)
+        # bot.send_message(message.chat.id, res)
 
     elif message.text == u'Показать случайный':
         bot.send_message(message.chat.id, get_random_city())
 
     elif message.text == u'/help' or message.text == u'/start':
         logger.debug(message.text)
-        #lst_city_photos = get_city_ru(message.text)
-        #bot.send_message(message.chat.id, lst_city_photos)
+        pass
+        # lst_city_photos = get_city_ru(message.text)
+        # bot.send_message(message.chat.id, lst_city_photos)
 
 
 def get_random_city():
