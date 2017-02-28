@@ -28,6 +28,7 @@ class Command(BaseCommand):
                 - Author of photos
             Return: dict of contents
         """
+        city_name = ''
         try:
             logger.info('Start parser')
             r = requests.get('https://www.phototowns.ru/all')
