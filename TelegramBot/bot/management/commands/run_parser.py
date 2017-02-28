@@ -75,7 +75,7 @@ def get_city_name_en(city_name):
     geo_data = {}
     try:
         g = geocoder.google(city_name)
-        geo_data['city'] = str(g.geojson['properties']['address'].split(",")).encode('utf-8')
+        geo_data['city'] = str(g.geojson['properties']['address'].split(",")[0]).encode('utf-8')
         geo_data['longitude_min'] = g.geojson['properties']['bbox'][0]
         geo_data['longitude_max'] = g.geojson['properties']['bbox'][2]
         geo_data['latitude_min'] = g.geojson['properties']['bbox'][1]
