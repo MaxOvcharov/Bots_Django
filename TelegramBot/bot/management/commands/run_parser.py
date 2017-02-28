@@ -38,6 +38,7 @@ class Command(BaseCommand):
 
             for href in city_href:
                 city_name = href[1]['title'].encode('utf-8')
+                city_name = re.split(' \\(|\\.| \xd0\xb8', city_name)[0
                 city_url = href[1]['href'].encode('utf-8')
                 author = href[2].findAll('a', text=re.compile(r'.*'))[0].encode('utf-8')
                 r = requests.get(city_url)
