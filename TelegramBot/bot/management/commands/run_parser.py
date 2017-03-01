@@ -9,7 +9,6 @@ import sys
 from BeautifulSoup import BeautifulSoup
 from bot.models import Cities, CityPhotos
 from django.core.management.base import BaseCommand
-from django.core.exceptions import MultipleObjectsReturned
 
 import logging
 logger = logging.getLogger('cron')
@@ -101,7 +100,7 @@ def get_img_urls(images_href):
             img_lst.append(images_urls)
         return img_lst
     except Exception, e:
-        logger.error(e)
+        logger.error(str(e) + '--> {0}'.format(images_href))
 
 
 def update_cities_table(update_city):
@@ -120,8 +119,7 @@ def update_cities_table(update_city):
                                         city_url=update_city['city_url'],
                                         author=update_city['author'],
                                         defaults=update_city)
-    except Exception, e:
-        logger.info('Handle ERROR: {0}'.format(e))
+    except Exception:
         Cities.objects.filter(city_name_en=update_city['city_name_en']).update(city_name=update_city['city_name'])
 
 
@@ -140,8 +138,9 @@ def update_city_photos_table(img_url_lst, city_name, author):
             CityPhotos.objects.update_or_create(photo_url=url,
                                                 city_id=city_id,
                                                 defaults=update_photos)
-    except Cities.DoesNotExist, e1:
-        logger.info('Handle ERROR: {0}'.format(e1))
-
+    except Cities.DoesNotExist:
+        # ignore duplicate city ID
+        pass
     except CityPhotos.DoesNotExist, e2:
-        logger.error(e2)
+        logger.error(str(e2) + '--> {0}'.format(city_name))
+

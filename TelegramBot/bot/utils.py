@@ -44,7 +44,7 @@ def start_command_handler(message):
                                     message.location.longitude],
                                    method='reverse')
         city_name = geo_data.city
-        logger.debug(res)
+        logger.debug(city_name)
         res = get_city_en(city_name)
         logger.debug(res)
         # bot.send_message(message.chat.id, res)

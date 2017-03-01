@@ -2,7 +2,6 @@
 
 import telebot
 import logging
-import time
 
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
@@ -18,6 +17,48 @@ import utils
 bot = telebot.TeleBot(BOT_TOKEN)
 
 logger = logging.getLogger('telegram')
+
+
+class CommandReceiveView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+        """
+            Handler of all telegram commands
+        """
+        try:
+            data = request.data
+        except ValueError:
+            return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
+        else:
+            update = telebot.types.Update.de_json(data)
+            logger.info('Context data: {0}'.format(update.message))
+            bot.process_new_updates([update])
+
+        try:
+            # Handle '/help' command
+            @bot.message_handler(commands=['help'])
+            def send_help_info(message):
+                logger.info('HELP: {0}'.format(message.chat.id))
+                bot.send_message(message.chat.id,
+                                 ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
+                                  "Введите любой город России и получите ТОП-10 фото\n"
+                                  "достопримечательностей города."))
+
+            # Handle '/start' command
+            @bot.message_handler(commands=['start'])
+            def send_welcome(message):
+                logger.info('START: {0}'.format(message.chat.id))
+                markup = utils.markup_city_finder()
+                msg = bot.send_message(message.chat.id,
+                                       ("Привет, я твой личный помощник и могу показать\n"
+                                        "тебе интересные места в городе.\n"
+                                        "Какой город мне найти?"), reply_markup=markup)
+                bot.register_next_step_handler(msg, utils.start_command_handler)
+
+            return Response(status=status.HTTP_200_OK)
+        except Exception, e:
+            logger.error(e)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -50,49 +91,5 @@ class CityPhotosViewSet(viewsets.ModelViewSet):
     """
     queryset = CityPhotos.objects.all().order_by('city_id')
     serializer_class = CityPhotosSerializer
-
-
-class CommandReceiveView(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request, format=None):
-        """
-            Handler of all telegram commands
-        """
-        try:
-            data = request.data
-        except ValueError:
-            return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
-        else:
-            update = telebot.types.Update.de_json(data)
-            bot.process_new_updates([update])
-            logger.info('Context data: {0}'.format(data))
-
-        try:
-            # Handle '/help' command
-            @bot.message_handler(commands=['help'])
-            def send_help_info(message):
-                logger.info('HELP: {0}'.format(message.chat.id))
-                bot.send_message(message.chat.id,
-                                 ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
-                                  "Введите любой город России и получите ТОП-10 фото\n"
-                                  "достопримечательностей города."))
-
-            # Handle '/start' command
-            @bot.message_handler(commands=['start'])
-            def send_welcome(message):
-                logger.info('START: {0}'.format(message.chat.id))
-                markup = utils.markup_city_finder()
-                msg = bot.send_message(message.chat.id,
-                                       ("Привет, я твой личный помощник и могу показать\n"
-                                        "тебе интересные места в городе.\n"
-                                        "Какой город мне найти?"), reply_markup=markup)
-                bot.register_next_step_handler(msg, utils.start_command_handler)
-
-            return Response(status=status.HTTP_200_OK)
-        except Exception, e:
-            logger.error(e)
-
-    
 
 
