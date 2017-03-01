@@ -44,6 +44,7 @@ def start_command_handler(message):
                                     message.location.longitude],
                                    method='reverse')
         city_name = geo_data.city
+        logger.debug(res)
         res = get_city_en(city_name)
         logger.debug(res)
         # bot.send_message(message.chat.id, res)
@@ -97,7 +98,8 @@ def get_city_en(city_name):
         city = Cities.objects.get(city_name_en=city_name)
         return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
                .format(city.city_name, city.city_url, city.author)
-    except Cities.DoesNotExist:
+    except Cities.DoesNotExist, e:
+        logger.debug("Handle ERROR: {0}".format(e))
         return 'К сожалению нет такого города... :('
 
 
