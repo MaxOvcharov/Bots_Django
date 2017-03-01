@@ -64,7 +64,7 @@ def get_random_city():
             :return: string of photos URLs
         """
     try:
-        city = Cities.objects.get(pk=randint(1, 350))
+        city = Cities.objects.random()
         return 'City name: {0}, City URL: {1}, Author of photos: {2}' \
             .format(city.city_name, city.city_url, city.author)
     except Exception, e:

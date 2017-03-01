@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+from random import randint
 
 from django.db import models
+from django.db.models import Count
+
+
+class UserManager(models.Manager):
+    """
+        Useful user db-methods
+    """
+    def random(self):
+        count = self.aggregate(ids=Count('id'))['ids']
+        random_index = randint(0, count - 1)
+        return self.all()[random_index]
 
 
 class Cities(models.Model):
@@ -14,6 +26,8 @@ class Cities(models.Model):
     geo_longitude_max = models.FloatField(null=True, blank=True, default=0.0)
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
+    # Adds random method
+    objects = UserManager()
 
     def __unicode__(self):
         return "City name(en): %s; City name: %s; Author: %s;\n" \
