@@ -32,7 +32,7 @@ def markup_city_finder():
     return markup
 
 
-def help_keyboard_handler(message):
+def start_command_handler(message):
     """
         Handle pressed button on first step of conversation.
         :param message: input message
@@ -67,7 +67,8 @@ def get_random_city():
         city = Cities.objects.get(pk=randint(1, 350))
         return 'City name: {0}, City URL: {1}, Author of photos: {2}' \
             .format(city.city_name, city.city_url, city.author)
-    except Cities.DoesNotExist:
+    except Exception, e:
+        logger.debug('Handle ERROR: {0}'.format(e))
         return 'К сожалению нет такого города... :('
 
 

@@ -66,6 +66,7 @@ class CommandReceiveView(APIView):
         else:
             update = telebot.types.Update.de_json(data)
             bot.process_new_updates([update])
+            logger.info('Context data: {0}'.format(data))
 
         try:
             # Handle '/help' command
@@ -86,7 +87,7 @@ class CommandReceiveView(APIView):
                                        ("Привет, я твой личный помощник и могу показать\n"
                                         "тебе интересные места в городе.\n"
                                         "Какой город мне найти?"), reply_markup=markup)
-                bot.register_next_step_handler(msg, utils.help_keyboard_handler)
+                bot.register_next_step_handler(msg, utils.start_command_handler)
 
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
