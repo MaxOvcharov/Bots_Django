@@ -122,7 +122,7 @@ def update_cities_table(update_city):
                                         defaults=update_city)
     except Exception, e:
         logger.info('Handle ERROR: {0}'.format(e))
-	Cities.objects.filter(city_name_en=update_city['city_name_en']).update(city_name=update_city['city_name'])
+        Cities.objects.filter(city_name_en=update_city['city_name_en']).update(city_name=update_city['city_name'])
 
 
 def update_city_photos_table(img_url_lst, city_name, author):
