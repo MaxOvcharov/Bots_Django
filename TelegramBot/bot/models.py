@@ -6,8 +6,8 @@ from django.db import models
 
 
 class Cities(models.Model):
-    city_name = models.CharField(max_length=80, verbose_name="Название города")
-    city_name_en = models.CharField(max_length=80, default='test', verbose_name="Английское название города")
+    city_name = models.CharField(max_length=80, unique=True, verbose_name="Название города")
+    city_name_en = models.CharField(max_length=80, unique=True, verbose_name="Английское название города")
     geo_latitude_min = models.FloatField(null=True, blank=True, default=0.0)
     geo_latitude_max = models.FloatField(null=True, blank=True, default=0.0)
     geo_longitude_min = models.FloatField(null=True, blank=True, default=0.0)

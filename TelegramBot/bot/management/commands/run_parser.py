@@ -9,6 +9,7 @@ import sys
 from BeautifulSoup import BeautifulSoup
 from bot.models import Cities, CityPhotos
 from django.core.management.base import BaseCommand
+from django.core.exceptions import MultipleObjectsReturned
 
 import logging
 logger = logging.getLogger('cron')
@@ -119,8 +120,9 @@ def update_cities_table(update_city):
                                         city_url=update_city['city_url'],
                                         author=update_city['author'],
                                         defaults=update_city)
-    except Cities.DoesNotExist, e:
-        logger.error(e)
+    except Exception, e:
+        logger.info('Handle ERROR: {0}'.format(e))
+	Cities.objects.filter(city_name_en=update_city['city_name_en']).update(city_name=update_city['city_name'])
 
 
 def update_city_photos_table(img_url_lst, city_name, author):
@@ -133,14 +135,13 @@ def update_city_photos_table(img_url_lst, city_name, author):
     """
     try:
         city_id = Cities.objects.get(city_name=city_name, author=author)
-    except Cities.DoesNotExist, e:
-        logger.error(e)
-    try:
         for url in img_url_lst:
             update_photos = {'photo_url': url, 'city_id': city_id}
             CityPhotos.objects.update_or_create(photo_url=url,
                                                 city_id=city_id,
                                                 defaults=update_photos)
-    except CityPhotos.DoesNotExist, e:
-        logger.error(e)
+    except Cities.DoesNotExist, e1:
+        logger.info('Handle ERROR: {0}'.format(e1))
 
+    except CityPhotos.DoesNotExist, e2:
+        logger.error(e2)
