@@ -54,7 +54,6 @@ class CommandReceiveView(APIView):
                                        ("Привет, я твой личный помощник и могу показать\n"
                                         "тебе интересные места в городе.\n"
                                         "Какой город мне найти?"), reply_markup=markup)
-                bot.register_next_step_handler(msg, utils.start_command_handler)
 
             # Handle '/city' command
             @bot.message_handler(commands=['city'])

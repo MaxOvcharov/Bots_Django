@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 import geocoder
 import logging
-from random import randint
 import telebot
 from telebot import types
 

@@ -52,3 +52,32 @@ class CityPhotos(models.Model):
     class Meta:
         db_table = 'city_photos'
         verbose_name_plural = "Фото городов"
+
+
+class DialogStepRouting(models.Model):
+    chat_id = models.IntegerField(verbose_name="Идентификационный номер чата")
+    command = models.CharField(max_length=80, verbose_name="Текущая комманда")
+    step = models.IntegerField(verbose_name="Номер шага")
+
+    def __unicode__(self):
+        return 'Chat ID: %s; Command: %s; Step number: %s' % \
+               (self.chat_id, self.command, self.step)
+
+    class Meta:
+        db_table = 'dialog_step_routing'
+        verbose_name_plural = 'Диалоги с пользователями'
+
+
+class UserInfo(models.Model):
+    first_name = models.CharField(max_length=150, verbose_name="Имя пользователя")
+    last_name = models.CharField(max_length=150, verbose_name="Фамилия пользователя")
+    username = models.CharField(max_length=150, verbose_name="Логин пользователя")
+    chat_id = models.IntegerField(verbose_name="Идентификационный номер чата")
+
+    def __unicode__(self):
+        return 'First name: %s; Last name: %s; Username: %s; Chat ID: %s' % \
+               (self.first_name, self.last_name, self.username, self.chat_id)
+
+    class Meta:
+        db_table = 'user_info'
+        verbose_name_plural = 'Список пользователей'
