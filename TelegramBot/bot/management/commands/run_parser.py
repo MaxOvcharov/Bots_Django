@@ -74,12 +74,12 @@ def get_city_name_en(city_name):
     """
     geo_data = {}
     try:
-        g = geocoder.google(city_name)
-        geo_data['city'] = str(g.geojson['properties']['address'].split(",")[0]).encode('utf-8')
-        geo_data['longitude_min'] = g.geojson['properties']['bbox'][0]
-        geo_data['longitude_max'] = g.geojson['properties']['bbox'][2]
-        geo_data['latitude_min'] = g.geojson['properties']['bbox'][1]
-        geo_data['latitude_max'] = g.geojson['properties']['bbox'][3]
+        g = geocoder.yandex(city_name)
+        geo_data['city'] = str(g.json['city']).encode('utf-8')
+        geo_data['longitude_min'] = g.json['bbox']['southwest'][1]
+        geo_data['longitude_max'] = g.json['bbox']['northeast'][1]
+        geo_data['latitude_min'] = g.json['bbox']['southwest'][0]
+        geo_data['latitude_max'] = g.json['bbox']['northeast'][0]
         return geo_data
     except Exception, e:
         logger.error(str(e) + '-->City name: {0} and  Geo data: {1}'.format(city_name, geo_data))

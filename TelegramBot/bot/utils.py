@@ -40,14 +40,14 @@ def start_command_handler(message):
 
     if message.location:
         logger.debug(message.location)
-        geo_data = geocoder.google([message.location.latitude,
+        geo_data = geocoder.yandex([message.location.latitude,
                                     message.location.longitude],
                                    method='reverse')
-        city_name = geo_data.city
+        city_name = str(geo_data.city).encode('utf-8')
         logger.debug(city_name)
         res = get_city_en(city_name)
         logger.debug(res)
-        # bot.send_message(message.chat.id, res)
+        bot.send_message(message.chat.id, res)
 
     elif message.text == u'Показать случайный':
         bot.send_message(message.chat.id, get_random_city())
