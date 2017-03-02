@@ -22,6 +22,8 @@ class ContextHandler:
         if self.context['message']['chat'] and \
                 self.context['message']['entities'].get(u'type', '') == u'bot_command':
             return self.get_chat_data()
+        else:
+            return [self.context['message']['chat'], '', 0]
 
     def get_chat_data(self):
         """

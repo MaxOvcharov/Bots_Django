@@ -6,13 +6,15 @@ import logging
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
 
+from city_photo_dialog import city_photo_dialog_handler
+from context_handler import ContextHandler
 from models import Cities, CityPhotos
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, CityPhotosSerializer
-import utils
+import keyboards
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -28,40 +30,45 @@ class CommandReceiveView(APIView):
         """
         try:
             data = request.data
+            context = ContextHandler(data)
+            dialog_data = context.context_serializer()
         except ValueError:
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
-        else:
-            update = telebot.types.Update.de_json(data)
-            logger.info('WEBHOOK: {}\n'.format(data))
-            logger.info('BOT UPDATE: {}\n'.format(update))
-            bot.process_new_updates([update])
+
         try:
-            # Handle '/help' command
-            @bot.message_handler(commands=['help'])
-            def send_help_info(message):
-                logger.info('HELP: {0}'.format(message.chat.id))
-                bot.send_message(message.chat.id,
-                                 ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
-                                  "Введите любой город России и получите ТОП-10 фото\n"
-                                  "достопримечательностей города."))
+            if not dialog_data[1]:
+                update = telebot.types.Update.de_json(data)
+                logger.info('WEBHOOK: {}\n'.format(data))
+                bot.process_new_updates([update])
 
-            # Handle '/start' command
-            @bot.message_handler(commands=['start'])
-            def send_welcome(message):
-                logger.info('START: {0}'.format(message.chat.id))
-                markup = utils.markup_city_finder()
-                msg = bot.send_message(message.chat.id,
-                                       ("Привет, я твой личный помощник и могу показать\n"
-                                        "тебе интересные места в городе.\n"
-                                        "Какой город мне найти?"), reply_markup=markup)
+                # Handle '/help' command
+                @bot.message_handler(commands=['help'])
+                def send_help_info(message):
+                    logger.info('HELP: {0}'.format(message.chat.id))
+                    bot.send_message(message.chat.id,
+                                     ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
+                                      "Введите любой город России и получите ТОП-10 фото\n"
+                                      "достопримечательностей города."))
 
-            # Handle '/city' command
-            @bot.message_handler(commands=['city'])
-            def send_city_photo(message):
-                logger.info('City: {0}'.format(message.chat.id))
-                markup = utils.markup_city_finder()
-                msg = bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
-                bot.register_next_step_handler(msg, utils.start_command_handler)
+                # Handle '/start' command
+                @bot.message_handler(commands=['start'])
+                def send_welcome(message):
+                    logger.info('START: {0}'.format(message.chat.id))
+                    markup = keyboards.markup_city_finder()
+                    bot.send_message(message.chat.id,
+                                     ("Привет, я твой личный помощник и могу показать\n"
+                                      "тебе интересные места в городе.\n"
+                                      "Какой город мне найти?"), reply_markup=markup)
+
+                # Handle '/city' command
+                @bot.message_handler(commands=['city'])
+                def send_city_photo(message):
+                    logger.info('City: {0}'.format(message.chat.id))
+                    markup = keyboards.markup_city_finder()
+                    msg = bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
+
+            elif dialog_data[2] in (u'/start', u'/city') and dialog_data[1] > 0:
+                city_photo_dialog_handler(data, dialog_data[1])
 
             return Response(status=status.HTTP_200_OK)
         except Exception, e:

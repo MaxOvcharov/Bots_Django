@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import geocoder
 import logging
 import telebot
-from telebot import types
 
 from models import Cities, CityPhotos
 from TelegramBot.settings import BOT_TOKEN
@@ -15,51 +14,47 @@ logger = logging.getLogger('telegram')
 bot = telebot.TeleBot(BOT_TOKEN)
 
 
-def markup_city_finder():
+def city_photo_dialog_handler(data, next_step):
     """
-        Generate keyboard - "City finder"
-        :return: markup object
-    """
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True,
-                                       resize_keyboard=True,
-                                       row_width=1)
-    # Create all buttons
-    btn1 = types.KeyboardButton('Определить по Вашим геоданным', request_location=True)
-    btn2 = types.KeyboardButton('Показать случайный')
-    markup.add(btn1, btn2)
-
-    return markup
-
-
-def start_command_handler(message):
-    """
-        Handle pressed button on first step of conversation.
+        Handle next step of conversation after command input.
         :param message: input message
     """
-
-    if message.location:
-        logger.debug(message.location)
-        geo_data = geocoder.yandex([message.location.latitude,
-                                    message.location.longitude],
-                                   method='reverse')
-        city_name = str(geo_data.city).encode('utf-8')
-        logger.debug(city_name)
-        res = get_city_en(city_name)
-        logger.debug(res)
-        keyboard_hider = telebot.types.ReplyKeyboardRemove()
-        bot.send_message(message.chat.id, res, reply_markup=keyboard_hider)
-
-    elif message.text == u'Показать случайный':
-        keyboard_hider = telebot.types.ReplyKeyboardRemove()
-        bot.send_message(message.chat.id, get_random_city(),
-                         reply_markup=keyboard_hider)
-
-    elif not str(message.text).startswith('/'):
-        logger.debug(message.text)
-        lst_city_photos = get_city_ru(message.text)
-        keyboard_hider = telebot.types.ReplyKeyboardRemove()
-        bot.send_message(message.chat.id, lst_city_photos,
-                         reply_markup=keyboard_hider)
+    update = telebot.types.Update.de_json(data)
+    logger.info('WEBHOOK: {}\n'.format(data))
+    bot.process_new_updates([update])
+    
+    # @bot.message_handler(commands=['start'])
+    # def send_welcome(message):
+    #     logger.info('START: {0}'.format(message.chat.id))
+    #     markup = keyboards.markup_city_finder()
+    #     bot.send_message(message.chat.id,
+    #                      ("Привет, я твой личный помощник и могу показать\n"
+    #                       "тебе интересные места в городе.\n"
+    #                       "Какой город мне найти?"), reply_markup=markup)
+    #
+    # if message.location:
+    #     logger.debug(message.location)
+    #     geo_data = geocoder.yandex([message.location.latitude,
+    #                                 message.location.longitude],
+    #                                method='reverse')
+    #     city_name = str(geo_data.city).encode('utf-8')
+    #     logger.debug(city_name)
+    #     res = get_city_en(city_name)
+    #     logger.debug(res)
+    #     keyboard_hider = telebot.types.ReplyKeyboardRemove()
+    #     bot.send_message(message.chat.id, res, reply_markup=keyboard_hider)
+    #
+    # elif message.text == u'Показать случайный':
+    #     keyboard_hider = telebot.types.ReplyKeyboardRemove()
+    #     bot.send_message(message.chat.id, get_random_city(),
+    #                      reply_markup=keyboard_hider)
+    #
+    # elif not str(message.text).startswith('/'):
+    #     logger.debug(message.text)
+    #     lst_city_photos = get_city_ru(message.text)
+    #     keyboard_hider = telebot.types.ReplyKeyboardRemove()
+    #     bot.send_message(message.chat.id, lst_city_photos,
+    #                      reply_markup=keyboard_hider)
 
 
 def get_random_city():
