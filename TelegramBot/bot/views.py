@@ -57,10 +57,10 @@ class CommandReceiveView(APIView):
 
             # Handle '/city' command
             @bot.message_handler(commands=['city'])
-            def send_welcome(message):
+            def send_city_photo(message):
                 logger.info('City: {0}'.format(message.chat.id))
                 markup = utils.markup_city_finder()
-                msg = bot.send_message(message.chat.id,"Какой город мне найти?", reply_markup=markup)
+                msg = bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
                 bot.register_next_step_handler(msg, utils.start_command_handler)
 
             return Response(status=status.HTTP_200_OK)
