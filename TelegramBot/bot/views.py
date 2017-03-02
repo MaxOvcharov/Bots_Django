@@ -32,9 +32,9 @@ class CommandReceiveView(APIView):
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
         else:
             update = telebot.types.Update.de_json(data)
-            logger.info('Context data: {0}'.format(update.message))
+            logger.info('WEBHOOK: {}\n'.format(data))
+            logger.info('BOT UPDATE: {}\n'.format(update))
             bot.process_new_updates([update])
-
         try:
             # Handle '/help' command
             @bot.message_handler(commands=['help'])
@@ -54,6 +54,14 @@ class CommandReceiveView(APIView):
                                        ("Привет, я твой личный помощник и могу показать\n"
                                         "тебе интересные места в городе.\n"
                                         "Какой город мне найти?"), reply_markup=markup)
+                bot.register_next_step_handler(msg, utils.start_command_handler)
+
+            # Handle '/city' command
+            @bot.message_handler(commands=['city'])
+            def send_welcome(message):
+                logger.info('City: {0}'.format(message.chat.id))
+                markup = utils.markup_city_finder()
+                msg = bot.send_message(message.chat.id,"Какой город мне найти?", reply_markup=markup)
                 bot.register_next_step_handler(msg, utils.start_command_handler)
 
             return Response(status=status.HTTP_200_OK)

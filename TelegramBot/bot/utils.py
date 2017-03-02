@@ -55,7 +55,7 @@ def start_command_handler(message):
         bot.send_message(message.chat.id, get_random_city(),
                          reply_markup=keyboard_hider)
 
-    elif message.text != u'/help' or message.text != u'/start':
+    elif not str(message.text).startswith('/'):
         logger.debug(message.text)
         lst_city_photos = get_city_ru(message.text)
         keyboard_hider = telebot.types.ReplyKeyboardRemove()
