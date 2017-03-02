@@ -50,17 +50,18 @@ class Command(BaseCommand):
                 # get city name in English
                 city_name_en = get_city_name_en(city_name)
                 # Update or create Cities table
-                update_city = {'city_name': city_name,
-                               'city_name_en': city_name_en['city'],
-                               'geo_latitude_min': city_name_en['latitude_min'],
-                               'geo_latitude_max': city_name_en['latitude_max'],
-                               'geo_longitude_min': city_name_en['longitude_min'],
-                               'geo_longitude_max': city_name_en['longitude_max'],
-                               'city_url': city_url,
-                               'author': author}
-                update_cities_table(update_city)
-                # Update or create City_photos table
-                update_city_photos_table(img_url_lst, city_name, author)
+                if city_name_en:
+                    update_city = {'city_name': city_name,
+                                   'city_name_en': city_name_en['city'],
+                                   'geo_latitude_min': city_name_en['latitude_min'],
+                                   'geo_latitude_max': city_name_en['latitude_max'],
+                                   'geo_longitude_min': city_name_en['longitude_min'],
+                                   'geo_longitude_max': city_name_en['longitude_max'],
+                                   'city_url': city_url,
+                                   'author': author}
+                    update_cities_table(update_city)
+                    # Update or create City_photos table
+                    update_city_photos_table(img_url_lst, city_name, author)
             logger.info('All cities are updated')
         except Exception, e:
             logger.error(str(e) + '--> {0}'.format(city_name))
@@ -83,6 +84,7 @@ def get_city_name_en(city_name):
         return geo_data
     except Exception, e:
         logger.error(str(e) + '-->City name: {0} and  Geo data: {1}'.format(city_name, geo_data))
+        return geo_data
 
 
 def get_img_urls(images_href):

@@ -47,16 +47,20 @@ def start_command_handler(message):
         logger.debug(city_name)
         res = get_city_en(city_name)
         logger.debug(res)
-        bot.send_message(message.chat.id, res)
+        keyboard_hider = telebot.types.ReplyKeyboardRemove()
+        bot.send_message(message.chat.id, res, reply_markup=keyboard_hider)
 
     elif message.text == u'Показать случайный':
-        bot.send_message(message.chat.id, get_random_city())
+        keyboard_hider = telebot.types.ReplyKeyboardRemove()
+        bot.send_message(message.chat.id, get_random_city(),
+                         reply_markup=keyboard_hider)
 
     elif message.text == u'/help' or message.text == u'/start':
         logger.debug(message.text)
-        pass
-        # lst_city_photos = get_city_ru(message.text)
-        # bot.send_message(message.chat.id, lst_city_photos)
+        lst_city_photos = get_city_ru(message.text)
+        keyboard_hider = telebot.types.ReplyKeyboardRemove()
+        bot.send_message(message.chat.id, lst_city_photos,
+                         reply_markup=keyboard_hider)
 
 
 def get_random_city():
