@@ -22,7 +22,6 @@ def city_photo_dialog_handler(data, next_step):
     :return: None
     """
     update = telebot.types.Update.de_json(data)
-    logger.info('WEBHOOK: {}\n'.format(data))
     bot.process_new_updates([update])
     
     @bot.message_handler(func=lambda m: True and next_step == 1)
@@ -39,6 +38,7 @@ def city_photo_dialog_handler(data, next_step):
             bot.send_message(message.chat.id, res)
 
         elif message.text == u'Показать случайный':
+            logger.debug(u'Показать случайный - OK')
             bot.send_message(message.chat.id, get_random_city())
 
         elif not str(message.text).startswith('/'):

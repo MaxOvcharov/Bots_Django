@@ -20,7 +20,7 @@ class ContextHandler:
         """
         # Check chat section in message
         if self.context['message']['chat'] and \
-                self.context['message']['entities'][0].get(u'type', '') == u'bot_command':
+            self.context['message'].get('text', '').startswith('/'):
             return self.get_chat_data
         else:
             return self.get_prev_step
@@ -33,7 +33,6 @@ class ContextHandler:
         """
         dialog, created = DialogStepRouting.objects.\
             update_or_create(chat_id=self.context['message']['chat']['id'],
-                             command=self.context['message']['text'],
                              defaults={'chat_id': self.context['message']['chat']['id'],
                                        'command': self.context['message']['text'],
                                        'step': 0})
@@ -44,8 +43,8 @@ class ContextHandler:
                                  username=self.context['message']['from'].get('last_name', ''),
                                  chat_id=self.context['message']['from']['id'])
             user_info.save()
-        dialog_data = dialog.values()[0]
-        logger.debug(dialog_data)
+        dialog_data = {'chat_id': dialog.chat_id, 'command': dialog.command, 'step': dialog.step}
+        logger.debug('DB DIALOG: {}\n'.format(dialog_data))
         return dialog_data
 
     @property
@@ -57,7 +56,7 @@ class ContextHandler:
         dialog, created = DialogStepRouting.objects. \
             get_or_create(chat_id=self.context['message']['chat']['id'],
                           defaults={'chat_id': self.context['message']['chat']['id'],
-                                    'command': self.context['message']['text'],
+                                    'command': self.context['message'].get('text', ''),
                                     'step': 0})
         if created:
             # If new dialog safe user info
@@ -66,6 +65,6 @@ class ContextHandler:
                                  username=self.context['message']['from'].get('last_name', ''),
                                  chat_id=self.context['message']['from']['id'])
             user_info.save()
-        dialog_data = dialog.values()[0]
-        logger.debug(dialog_data)
+        dialog_data = {'chat_id': dialog.chat_id, 'command': dialog.command, 'step': dialog.step}
+        logger.debug('DB DIALOG: {}\n'.format(dialog_data))
         return dialog_data
