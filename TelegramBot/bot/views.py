@@ -17,7 +17,6 @@ from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, Ci
 import keyboards
 
 bot = telebot.TeleBot(BOT_TOKEN)
-
 logger = logging.getLogger('telegram')
 
 
