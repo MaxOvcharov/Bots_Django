@@ -20,7 +20,7 @@ class ContextHandler:
         """
         # Check chat section in message
         if self.context['message']['chat'] and \
-                self.context['message']['entities'].get(u'type', '') == u'bot_command':
+                self.context['message']['entities'][0].get(u'type', '') == u'bot_command':
             return self.get_chat_data
         else:
             return self.get_prev_step
@@ -33,9 +33,9 @@ class ContextHandler:
         """
         dialog, created = DialogStepRouting.objects.\
             update_or_create(chat_id=self.context['message']['chat']['id'],
-                             command=self.context['message']['from']['text'],
+                             command=self.context['message']['text'],
                              defaults={'chat_id': self.context['message']['chat']['id'],
-                                       'command': self.context['message']['from']['text'],
+                                       'command': self.context['message']['text'],
                                        'step': 0})
         if created:
             # If new dialog safe user info
@@ -57,7 +57,7 @@ class ContextHandler:
         dialog, created = DialogStepRouting.objects. \
             get_or_create(chat_id=self.context['message']['chat']['id'],
                           defaults={'chat_id': self.context['message']['chat']['id'],
-                                    'command': self.context['message']['from']['text'],
+                                    'command': self.context['message']['text'],
                                     'step': 0})
         if created:
             # If new dialog safe user info
