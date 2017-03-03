@@ -8,7 +8,7 @@ from TelegramBot.settings import BOT_TOKEN
 
 from city_photo_dialog import city_photo_dialog_handler
 from context_handler import ContextHandler
-from models import Cities, CityPhotos
+from models import Cities, CityPhotos, DialogStepRouting
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -36,7 +36,9 @@ class CommandReceiveView(APIView):
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            if not dialog_data[1]:
+            if dialog_data['command'].startswith('/') and \
+                            dialog_data['step'] == 0:
+
                 update = telebot.types.Update.de_json(data)
                 logger.info('WEBHOOK: {}\n'.format(data))
                 bot.process_new_updates([update])
@@ -59,16 +61,19 @@ class CommandReceiveView(APIView):
                                      ("Привет, я твой личный помощник и могу показать\n"
                                       "тебе интересные места в городе.\n"
                                       "Какой город мне найти?"), reply_markup=markup)
+                    DialogStepRouting.objects.next_step(dialog_data['step'])
 
                 # Handle '/city' command
                 @bot.message_handler(commands=['city'])
                 def send_city_photo(message):
                     logger.info('City: {0}'.format(message.chat.id))
                     markup = keyboards.markup_city_finder()
-                    msg = bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
+                    bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
+                    DialogStepRouting.objects.next_step(dialog_data['step'])
 
-            elif dialog_data[2] in (u'/start', u'/city') and dialog_data[1] > 0:
-                city_photo_dialog_handler(data, dialog_data[1])
+            elif dialog_data['command'] in (u'/start', u'/city')\
+                    and dialog_data['step'] > 0:
+                city_photo_dialog_handler(data, dialog_data['step'])
 
             return Response(status=status.HTTP_200_OK)
         except Exception, e:

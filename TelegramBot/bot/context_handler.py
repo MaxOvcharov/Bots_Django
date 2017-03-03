@@ -21,20 +21,22 @@ class ContextHandler:
         # Check chat section in message
         if self.context['message']['chat'] and \
                 self.context['message']['entities'].get(u'type', '') == u'bot_command':
-            return self.get_chat_data()
+            return self.get_chat_data
         else:
-            return [self.context['message']['chat'], '', 0]
+            return self.get_prev_step
 
+    @property
     def get_chat_data(self):
         """
         Get chat data from context, if it's first conversation save user info data
-        :return: dialog dict with: chat_id, command, step
+        :return: dialog_data(list) with: chat_id, command, step
         """
         dialog, created = DialogStepRouting.objects.\
-                            get_or_create(chat_id=self.context['message']['chat']['id'],
-                                          defaults={'chat_id': self.context['message']['chat']['id'],
-                                                    'command': self.context['message']['from']['text'],
-                                                    'step': 0})
+            update_or_create(chat_id=self.context['message']['chat']['id'],
+                             command=self.context['message']['from']['text'],
+                             defaults={'chat_id': self.context['message']['chat']['id'],
+                                       'command': self.context['message']['from']['text'],
+                                       'step': 0})
         if created:
             # If new dialog safe user info
             user_info = UserInfo(first_name=self.context['message']['from'].get('first_name', ''),
@@ -42,10 +44,28 @@ class ContextHandler:
                                  username=self.context['message']['from'].get('last_name', ''),
                                  chat_id=self.context['message']['from']['id'])
             user_info.save()
+        dialog_data = dialog.values()[0]
+        logger.debug(dialog_data)
+        return dialog_data
 
-        return list(dialog)
-
-
-
-
-
+    @property
+    def get_prev_step(self):
+        """
+        Get previous step of dialog for this chat ID
+        :return: dialog_date(list) with: chat_id, command, step
+        """
+        dialog, created = DialogStepRouting.objects. \
+            get_or_create(chat_id=self.context['message']['chat']['id'],
+                          defaults={'chat_id': self.context['message']['chat']['id'],
+                                    'command': self.context['message']['from']['text'],
+                                    'step': 0})
+        if created:
+            # If new dialog safe user info
+            user_info = UserInfo(first_name=self.context['message']['from'].get('first_name', ''),
+                                 last_name=self.context['message']['from'].get('last_name', ''),
+                                 username=self.context['message']['from'].get('last_name', ''),
+                                 chat_id=self.context['message']['from']['id'])
+            user_info.save()
+        dialog_data = dialog.values()[0]
+        logger.debug(dialog_data)
+        return dialog_data

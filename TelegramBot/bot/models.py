@@ -5,6 +5,7 @@ from random import randint
 
 from django.db import models
 from django.db.models import Count
+from django.db.models import F
 
 
 class UserManager(models.Manager):
@@ -15,6 +16,9 @@ class UserManager(models.Manager):
         count = self.aggregate(ids=Count('id'))['ids']
         random_index = randint(0, count - 1)
         return self.all()[random_index]
+
+    def next_step(self, chat_id):
+        self.filter(chat_id=chat_id).update(step=F('step') + 1)
 
 
 class Cities(models.Model):
@@ -58,6 +62,8 @@ class DialogStepRouting(models.Model):
     chat_id = models.IntegerField(verbose_name="Идентификационный номер чата")
     command = models.CharField(max_length=80, verbose_name="Текущая комманда")
     step = models.IntegerField(verbose_name="Номер шага")
+    # Adds  method
+    objects = UserManager()
 
     def __unicode__(self):
         return 'Chat ID: %s; Command: %s; Step number: %s' % \
