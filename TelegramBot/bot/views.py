@@ -42,6 +42,7 @@ class CommandReceiveView(APIView):
 
                 logger.debug('DIALOG: {}\n'.format(dialog_data))
                 logger.debug('CONTEXT: {}\n'.format(context))
+
                 # Handle '/help' command
                 @bot.message_handler(commands=['help'])
                 def send_help_info(message):
@@ -72,8 +73,9 @@ class CommandReceiveView(APIView):
             elif dialog_data['command'] in (u'/start', u'/city')\
                     and dialog_data['step'] > 0:
                 logger.debug('DIALOG: {}\n'.format(dialog_data))
+                logger.debug('CONTEXT: {}\n'.format(context))
                 city_photo_dialog_handler(data, dialog_data['step'])
-
+                DialogStepRouting.objects.filter(chat_id=dialog_data['chat_id']).update(step=0)
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
             logger.error(e)

@@ -11,6 +11,7 @@ from TelegramBot.settings import BOT_TOKEN
 
 logger = logging.getLogger('telegram')
 
+bot = telebot.TeleBot(BOT_TOKEN)
 
 
 def city_photo_dialog_handler(data, next_step):
@@ -20,36 +21,37 @@ def city_photo_dialog_handler(data, next_step):
     :param next_step: next step of dialog
     :return: None
     """
-    bot = telebot.TeleBot(BOT_TOKEN)
     update = telebot.types.Update.de_json(data)
     bot.process_new_updates([update])
     logger.debug("CITY_PHOTO: {0}.\n{1}".format(data['message']['chat']['id'], update))
-    
-    @bot.message_handler(func=lambda m: True)
-    def send_welcome(message):
-        logger.debug("CITY_PHOTO: {}\n\n".format(message.text))
-        if message.location:
-            logger.debug(message.location)
-            geo_data = geocoder.yandex([message.location.latitude,
-                                        message.location.longitude],
-                                       method='reverse')
-            city_name = str(geo_data.city).encode('utf-8')
-            logger.debug(city_name)
-            res = get_city_en(city_name)
-            logger.debug(res)
-            bot.send_message(message.chat.id, res)
+    try:
+        @bot.message_handler(func=lambda m: True)
+        def send_welcome(message):
+            logger.debug("CITY_PHOTO: {}\n\n".format(message.text))
+            if message.location:
+                logger.debug(message.location)
+                geo_data = geocoder.yandex([message.location.latitude,
+                                            message.location.longitude],
+                                           method='reverse')
+                city_name = str(geo_data.city).encode('utf-8')
+                logger.debug(city_name)
+                res = get_city_en(city_name)
+                logger.debug(res)
+                bot.send_message(message.chat.id, res)
 
-        elif message.text == u'Показать случайный':
-            logger.debug(u'Показать случайный - OK')
-            bot.send_message(message.chat.id, get_random_city())
+            elif message.text == u'Показать случайный':
+                logger.debug(u'Показать случайный - OK')
+                bot.send_message(message.chat.id, get_random_city())
 
-        elif not str(message.text).startswith('/'):
-            logger.debug(message.text)
-            lst_city_photos = get_city_ru(message.text)
-            bot.send_message(message.chat.id, lst_city_photos)
-        else:
-            logger.debug("Bad news!!!!!")
-        DialogStepRouting.objects.filter(chat_id=dialog_data['chat_id']).update(step=0)	
+            elif not str(message.text).startswith('/'):
+                logger.debug(message.text)
+                lst_city_photos = get_city_ru(message.text)
+                bot.send_message(message.chat.id, lst_city_photos)
+            else:
+                logger.debug("Bad news!!!!!")
+
+    except Exception, e:
+        logger.debug(e)
 
 def get_random_city():
     """
