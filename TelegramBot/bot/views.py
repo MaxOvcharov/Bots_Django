@@ -2,7 +2,7 @@
 
 import telebot
 import logging
-
+import time
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
 
@@ -32,7 +32,6 @@ class CommandReceiveView(APIView):
             context = ContextHandler(data)
             dialog_data = context.context_serializer()
             update = telebot.types.Update.de_json(data)
-            logger.info('WEBHOOK: {}\n'.format(data))
             bot.process_new_updates([update])
         except ValueError:
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
@@ -42,6 +41,7 @@ class CommandReceiveView(APIView):
                             dialog_data['step'] == 0:
 
                 logger.debug('DIALOG: {}\n'.format(dialog_data))
+                logger.debug('CONTEXT: {}\n'.format(context))
                 # Handle '/help' command
                 @bot.message_handler(commands=['help'])
                 def send_help_info(message):
@@ -69,7 +69,6 @@ class CommandReceiveView(APIView):
                     markup = keyboards.markup_city_finder()
                     bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
                     DialogStepRouting.objects.next_step(dialog_data['chat_id'])
-
             elif dialog_data['command'] in (u'/start', u'/city')\
                     and dialog_data['step'] > 0:
                 logger.debug('DIALOG: {}\n'.format(dialog_data))

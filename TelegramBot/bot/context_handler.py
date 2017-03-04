@@ -12,6 +12,9 @@ class ContextHandler:
 
     def __init__(self, context):
         self.context = context
+  
+    def __str__(self):
+        return str(self.context)
 
     def context_serializer(self):
         """
@@ -43,8 +46,7 @@ class ContextHandler:
                                  username=self.context['message']['from'].get('last_name', ''),
                                  chat_id=self.context['message']['from']['id'])
             user_info.save()
-        dialog_data = {'chat_id': dialog.chat_id, 'command': dialog.command, 'step': dialog.step}
-        logger.debug('DB DIALOG: {}\n'.format(dialog_data))
+        dialog_data = {'chat_id': dialog.chat_id, 'command': dialog.command, 'step': dialog.step, 'created':created}
         return dialog_data
 
     @property
@@ -65,6 +67,5 @@ class ContextHandler:
                                  username=self.context['message']['from'].get('last_name', ''),
                                  chat_id=self.context['message']['from']['id'])
             user_info.save()
-        dialog_data = {'chat_id': dialog.chat_id, 'command': dialog.command, 'step': dialog.step}
-        logger.debug('DB DIALOG: {}\n'.format(dialog_data))
+        dialog_data = {'chat_id': dialog.chat_id, 'command': dialog.command, 'step': dialog.step, 'created':created}
         return dialog_data
