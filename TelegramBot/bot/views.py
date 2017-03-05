@@ -32,67 +32,66 @@ class CommandReceiveView(APIView):
             data = request.data
             context = ContextHandler(data)
             dialog_data = context.context_serializer()
-
             update = telebot.types.Update.de_json(data)
-            #if update.message:
-            #    bot.process_new_messages([update.message])
-            #if update.inline_query:
-            #    bot.process_new_inline_query([update.inline_query])
             bot.process_new_updates([update])
         except ValueError:
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # if dialog_data['command'].startswith('/') and \
-            #                 dialog_data['step'] == 0:
+            if dialog_data['command'].startswith('/') and \
+                            dialog_data['step'] == 0:
 
-            logger.debug('DIALOG: {}\n'.format(dialog_data))
-            logger.debug('CONTEXT: {}\n'.format(context))
+                logger.debug('DIALOG: {}\n'.format(dialog_data))
+                logger.debug('CONTEXT: {}\n'.format(context))
 
-            # Handle '/help' command
-            @bot.message_handler(commands=['help'])
-            def send_help_info(message):
-                logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
-                bot.send_message(message.chat.id,
-                                 ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
-                                  "Введите любой город России и получите ТОП-10 фото\n"
-                                  "достопримечательностей города."))
+                # Handle '/help' command
+                @bot.message_handler(commands=['help'])
+                def send_help_info(message):
+                    logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
+                    bot.send_message(message.chat.id,
+                                     ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
+                                      "Введите любой город России и получите ТОП-10 фото\n"
+                                      "достопримечательностей города."))
 
-            # Handle '/start' command
-            @bot.message_handler(commands=['start'])
-            def send_welcome(message):
-                logger.info('START: {0}\n\n\n'.format(message.chat.id))
-                markup = keyboards.markup_city_finder()
-                bot.send_message(message.chat.id,
-                                 ("Привет, я твой личный помощник и могу показать\n"
-                                  "тебе интересные места в городе.\n"
-                                  "Какой город мне найти?"), reply_markup=markup)
-                DialogStepRouting.objects.next_step(dialog_data['chat_id'])
+                # Handle '/start' command
+                @bot.message_handler(commands=['start'])
+                def send_welcome(message):
+                    logger.info('START: {0}\n\n\n'.format(message.chat.id))
+                    markup = keyboards.markup_city_finder()
+                    bot.send_message(message.chat.id,
+                                     ("Привет, я твой личный помощник и могу показать\n"
+                                      "тебе интересные места в городе.\n"
+                                      "Какой город мне найти?"), reply_markup=markup)
+                    DialogStepRouting.objects.next_step(dialog_data['chat_id'])
 
-            # Handle '/city' command
-            @bot.message_handler(commands=['photo'])
-            def send_photo(message):
-                logger.info('PHOTO: {0}\n\n\n'.format(message.chat.id))
-                markup = keyboards.markup_city_finder()
-                bot.send_message(message.chat.id, "Какое фото мне загрузить?", reply_markup=markup)
-                DialogStepRouting.objects.next_step(dialog_data['chat_id'])
+                # Handle '/city' command
+                @bot.message_handler(commands=['photo'])
+                def send_photo(message):
+                    logger.info('PHOTO: {0}\n\n\n'.format(message.chat.id))
+                    markup = keyboards.markup_city_finder()
+                    bot.send_message(message.chat.id, "Какое фото мне загрузить?", reply_markup=markup)
+                    DialogStepRouting.objects.next_step(dialog_data['chat_id'])
 
-            @bot.message_handler(commands=['city'])
-            def send_city_name(message):
-                logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
-                markup = keyboards.markup_city_finder()
-                bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
-                DialogStepRouting.objects.next_step(dialog_data['chat_id'])
+                @bot.message_handler(commands=['city'])
+                def send_city_name(message):
+                    logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
+                    markup = keyboards.markup_city_finder()
+                    bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
+                    DialogStepRouting.objects.next_step(dialog_data['chat_id'])
 
-            @bot.message_handler(func=lambda m: True)
-            def send_reply_all(message):
-                logger.info('ECHO: {0}\n\n\n'.format(message.chat.id))
-                bot.send_message(message.chat.id, message.text)
+            elif dialog_data['command'] in (u'/start', u'/city', u'/photo')\
+                    and dialog_data['step'] > 0:
+                logger.debug('DIALOG: {}\n'.format(dialog_data))
+                logger.debug('CONTEXT: {}\n'.format(context))
 
-            # elif dialog_data['command'] in (u'/start', u'/city')\
-            #         and dialog_data['step'] > 0:
-            # logger.debug('DIALOG: {}\n'.format(dialog_data))
-            # logger.debug('CONTEXT: {}\n'.format(context))
+                @bot.message_handler(func=lambda m: True)
+                def send_reply_all(message):
+                    logger.info('ECHO: {0}\n\n\n'.format(message.chat.id))
+                    bot.send_message(message.chat.id, message.text)
+                    DialogStepRouting.objects.filter(chat_id=dialog_data['chat_id']).update(step=0)
+
+
+
             # city_photo_dialog_handler(data, dialog_data['step'])
 
             # @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1)
@@ -120,7 +119,6 @@ class CommandReceiveView(APIView):
             #     else:
             #         logger.debug("Bad news!!!!!")
 
-            DialogStepRouting.objects.filter(chat_id=dialog_data['chat_id']).update(step=0)
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
             logger.error(e)
