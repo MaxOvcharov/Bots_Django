@@ -9,7 +9,8 @@ def markup_city_finder():
         Generate keyboard - "City finder"
         :return: markup object
     """
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True,
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, 
+                                       one_time_keyboard=True,
                                        row_width=1)
     # Create all buttons
     btn1 = types.KeyboardButton('Определить по Вашим геоданным', request_location=True)

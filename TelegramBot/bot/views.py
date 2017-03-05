@@ -35,11 +35,11 @@ class CommandReceiveView(APIView):
             dialog_data = context.context_serializer()
 
             update = telebot.types.Update.de_json(data)
-            if update.message:
-                bot.process_new_messages([update.message])
-            if update.inline_query:
-                bot.process_new_inline_query([update.inline_query])
-            # bot.process_new_updates([update])
+            #if update.message:
+            #    bot.process_new_messages([update.message])
+            #if update.inline_query:
+            #    bot.process_new_inline_query([update.inline_query])
+            bot.process_new_updates([update])
         except ValueError:
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
 
@@ -53,7 +53,7 @@ class CommandReceiveView(APIView):
                 # Handle '/help' command
                 @bot.message_handler(commands=['help'])
                 def send_help_info(message):
-                    logger.info('HELP: {0}'.format(message.chat.id))
+                    logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
                     bot.send_message(message.chat.id,
                                      ("MaxTravelBot - это Ваш личный помощник в путешествии.\n"
                                       "Введите любой город России и получите ТОП-10 фото\n"
@@ -62,7 +62,7 @@ class CommandReceiveView(APIView):
                 # Handle '/start' command
                 @bot.message_handler(commands=['start'])
                 def send_welcome(message):
-                    logger.info('START: {0}'.format(message.chat.id))
+                    logger.info('START: {0}\n\n\n'.format(message.chat.id))
                     markup = keyboards.markup_city_finder()
                     bot.send_message(message.chat.id,
                                      ("Привет, я твой личный помощник и могу показать\n"
@@ -71,9 +71,9 @@ class CommandReceiveView(APIView):
                     DialogStepRouting.objects.next_step(dialog_data['chat_id'])
 
                 # Handle '/city' command
-                @bot.message_handler(commands=['city'])
+                @bot.message_handler(commands=['photo'])
                 def send_city_photo(message):
-                    logger.info('City: {0}'.format(message.chat.id))
+                    logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
                     markup = keyboards.markup_city_finder()
                     bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
                     DialogStepRouting.objects.next_step(dialog_data['chat_id'])
@@ -84,9 +84,9 @@ class CommandReceiveView(APIView):
                 logger.debug('CONTEXT: {}\n'.format(context))
                 # city_photo_dialog_handler(data, dialog_data['step'])
 
-                @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1)
-                def send_welcome(message):
-                    logger.debug("CITY_PHOTO: {}\n\n".format(message.text))
+                @bot.message_handler(func=lambda m: True)
+                def send_photos(message):
+                    logger.debug("CITY_PHOTO: {}\n\n\n".format(message.text))
                     if message.location:
                         logger.debug(message.location)
                         geo_data = geocoder.yandex([message.location.latitude,
