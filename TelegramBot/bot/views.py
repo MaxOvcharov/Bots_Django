@@ -7,7 +7,7 @@ import geocoder
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
 
-from city_photo_dialog import city_photo_dialog_handler, get_city_en, get_city_ru, get_random_city
+from cityPhotoDialog import city_photo_dialog_handler, get_city_en, get_city_ru, get_random_city
 from context_handler import ContextHandler
 from models import Cities, CityPhotos, DialogStepRouting
 from rest_framework import viewsets, status
