@@ -53,6 +53,7 @@ def city_photo_dialog_handler(data, next_step):
     except Exception, e:
         logger.debug(e)
 
+
 def get_random_city():
     """
         Get photos by random city ID

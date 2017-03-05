@@ -3,10 +3,12 @@
 import telebot
 import logging
 import time
+import geocoder
+
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
 
-from city_photo_dialog import city_photo_dialog_handler
+from city_photo_dialog import city_photo_dialog_handler, get_city_en, get_city_ru, get_random_city
 from context_handler import ContextHandler
 from models import Cities, CityPhotos, DialogStepRouting
 from rest_framework import viewsets, status
@@ -31,8 +33,13 @@ class CommandReceiveView(APIView):
             data = request.data
             context = ContextHandler(data)
             dialog_data = context.context_serializer()
+
             update = telebot.types.Update.de_json(data)
-            bot.process_new_updates([update])
+            if update.message:
+                bot.process_new_messages([update.message])
+            if update.inline_query:
+                bot.process_new_inline_query([update.inline_query])
+            # bot.process_new_updates([update])
         except ValueError:
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
 
@@ -70,11 +77,38 @@ class CommandReceiveView(APIView):
                     markup = keyboards.markup_city_finder()
                     bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
                     DialogStepRouting.objects.next_step(dialog_data['chat_id'])
+
             elif dialog_data['command'] in (u'/start', u'/city')\
                     and dialog_data['step'] > 0:
                 logger.debug('DIALOG: {}\n'.format(dialog_data))
                 logger.debug('CONTEXT: {}\n'.format(context))
-                city_photo_dialog_handler(data, dialog_data['step'])
+                # city_photo_dialog_handler(data, dialog_data['step'])
+
+                @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1)
+                def send_welcome(message):
+                    logger.debug("CITY_PHOTO: {}\n\n".format(message.text))
+                    if message.location:
+                        logger.debug(message.location)
+                        geo_data = geocoder.yandex([message.location.latitude,
+                                                    message.location.longitude],
+                                                   method='reverse')
+                        city_name = str(geo_data.city).encode('utf-8')
+                        logger.debug(city_name)
+                        res = get_city_en(city_name)
+                        logger.debug(res)
+                        bot.send_message(message.chat.id, res)
+
+                    elif message.text == u'Показать случайный':
+                        logger.debug(u'Показать случайный - OK')
+                        bot.send_message(message.chat.id, get_random_city())
+
+                    elif not str(message.text).startswith('/'):
+                        logger.debug(message.text)
+                        lst_city_photos = get_city_ru(message.text)
+                        bot.send_message(message.chat.id, lst_city_photos)
+                    else:
+                        logger.debug("Bad news!!!!!")
+
                 DialogStepRouting.objects.filter(chat_id=dialog_data['chat_id']).update(step=0)
             return Response(status=status.HTTP_200_OK)
         except Exception, e:
