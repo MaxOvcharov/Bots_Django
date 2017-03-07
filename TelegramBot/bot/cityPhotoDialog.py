@@ -9,7 +9,7 @@ from models import Cities, CityPhotos
 logger = logging.getLogger('telegram')
 
 
-class CityPhotoDialog:
+class CityPhotoDialog(object):
     def __init__(self, bot):
         super(CityPhotoDialog, self).__init__()
 

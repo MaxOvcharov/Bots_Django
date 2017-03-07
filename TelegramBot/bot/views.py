@@ -6,6 +6,7 @@ import geocoder
 
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
+from django.db.models import F
 
 from cityPhotoDialog import CityPhotoDialog
 from context_handler import ContextHandler
@@ -63,14 +64,15 @@ class CommandReceiveView(APIView):
                                      ("Привет, я твой личный помощник и могу показать\n"
                                       "тебе интересные места в городе.\n"
                                       "Какой город мне найти?"), reply_markup=markup)
-                    DialogStepRouting.objects.next_step(dialog_data['chat_id'])
+                    DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
 
                 @bot.message_handler(commands=['city'])
                 def send_city_name(message):
                     logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
                     markup = keyboards.markup_city_finder()
                     bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
-                    DialogStepRouting.objects.next_step(dialog_data['chat_id'])
+                    #DialogStepRouting.objects.next_step(dialog_data['chat_id'])
+                    DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
 
             elif dialog_data['command'] in (u'/start', u'/city')\
                     and dialog_data['step'] > 0:
