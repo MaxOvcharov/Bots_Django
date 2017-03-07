@@ -7,7 +7,7 @@ import geocoder
 from django.contrib.auth.models import User, Group
 from TelegramBot.settings import BOT_TOKEN
 
-from cityPhotoDialog import city_photo_dialog_handler, get_city_en, get_city_ru, get_random_city
+from cityPhotoDialog import CityPhotoDialog
 from context_handler import ContextHandler
 from models import Cities, CityPhotos, DialogStepRouting
 from rest_framework import viewsets, status
@@ -18,6 +18,7 @@ from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, Ci
 import keyboards
 
 bot = telebot.TeleBot(BOT_TOKEN)
+get_city_photo = CityPhotoDialog(bot)
 logger = logging.getLogger('telegram')
 
 
@@ -64,14 +65,6 @@ class CommandReceiveView(APIView):
                                       "Какой город мне найти?"), reply_markup=markup)
                     DialogStepRouting.objects.next_step(dialog_data['chat_id'])
 
-                # Handle '/city' command
-                @bot.message_handler(commands=['photo'])
-                def send_photo(message):
-                    logger.info('PHOTO: {0}\n\n\n'.format(message.chat.id))
-                    markup = keyboards.markup_city_finder()
-                    bot.send_message(message.chat.id, "Какое фото мне загрузить?", reply_markup=markup)
-                    DialogStepRouting.objects.next_step(dialog_data['chat_id'])
-
                 @bot.message_handler(commands=['city'])
                 def send_city_name(message):
                     logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
@@ -79,48 +72,19 @@ class CommandReceiveView(APIView):
                     bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
                     DialogStepRouting.objects.next_step(dialog_data['chat_id'])
 
-            elif dialog_data['command'] in (u'/start', u'/city', u'/photo')\
+            elif dialog_data['command'] in (u'/start', u'/city')\
                     and dialog_data['step'] > 0:
                 logger.debug('DIALOG: {}\n'.format(dialog_data))
                 logger.debug('CONTEXT: {}\n'.format(context))
 
                 @bot.message_handler(func=lambda m: True)
-                def send_reply_all(message):
-                    logger.info('ECHO: {0}\n\n\n'.format(message.chat.id))
-                    bot.send_message(message.chat.id, message.text)
-                    DialogStepRouting.objects.filter(chat_id=dialog_data['chat_id']).update(step=0)
-
-
-
-            # city_photo_dialog_handler(data, dialog_data['step'])
-
-            # @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1)
-            # def send_photos(message):
-            #     logger.debug("CITY_PHOTO: {}\n\n\n".format(message.text))
-            #     if message.location:
-            #         logger.debug(message.location)
-            #         geo_data = geocoder.yandex([message.location.latitude,
-            #                                     message.location.longitude],
-            #                                    method='reverse')
-            #         city_name = str(geo_data.city).encode('utf-8')
-            #         logger.debug(city_name)
-            #         res = get_city_en(city_name)
-            #         logger.debug(res)
-            #         bot.send_message(message.chat.id, res)
-            #
-            #     elif message.text == u'Показать случайный':
-            #         logger.debug(u'Показать случайный - OK')
-            #         bot.send_message(message.chat.id, get_random_city())
-            #
-            #     elif not str(message.text).startswith('/'):
-            #         logger.debug(message.text)
-            #         lst_city_photos = get_city_ru(message.text)
-            #         bot.send_message(message.chat.id, lst_city_photos)
-            #     else:
-            #         logger.debug("Bad news!!!!!")
+                def send_city_photo(message):
+                    logger.info('PHOTO: {0}\n\n\n'.format(message.chat.id))
+                    get_city_photo.city_photo_dialog_handler(message)
+                    DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
 
             return Response(status=status.HTTP_200_OK)
-        except Exception, e:
+        except Exception as e:
             logger.error(e)
 
 

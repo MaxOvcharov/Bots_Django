@@ -3,11 +3,8 @@
 from __future__ import unicode_literals
 import geocoder
 import logging
-import telebot
 
-from models import Cities, CityPhotos, DialogStepRouting
-from TelegramBot.settings import BOT_TOKEN
-
+from models import Cities, CityPhotos
 
 logger = logging.getLogger('telegram')
 
@@ -18,45 +15,40 @@ class CityPhotoDialog:
 
         self.bot = bot
 
-    def city_photo_dialog_handler(self, next_step):
+    def city_photo_dialog_handler(self, message):
         """
         Handle next step of conversation after command input.
-        :param data: context for webhook
-        :param next_step: next step of dialog
+        :param message: message from main view
         :return: None
         """
-        logger.debug("CITY_PHOTO: {0}.\n{1}".format(data['message']['chat']['id'], update))
         try:
-            @bot.message_handler(func=lambda m: True)
-            def send_welcome(message):
-                logger.debug("CITY_PHOTO: {}\n\n".format(message.text))
-                if message.location:
-                    logger.debug(message.location)
-                    geo_data = geocoder.yandex([message.location.latitude,
-                                                message.location.longitude],
-                                               method='reverse')
-                    city_name = str(geo_data.city).encode('utf-8')
-                    logger.debug(city_name)
-                    res = get_city_en(city_name)
-                    logger.debug(res)
-                    bot.send_message(message.chat.id, res)
+            logger.debug("CITY_PHOTO: {}\n\n".format(message.text))
+            if message.location:
+                logger.debug(message.location)
+                geo_data = geocoder.yandex([message.location.latitude,
+                                            message.location.longitude],
+                                           method='reverse')
+                city_name = str(geo_data.city).encode('utf-8')
+                logger.debug(city_name)
+                res = self.get_city_en(city_name)
+                logger.debug(res)
+                self.bot.send_message(message.chat.id, res)
 
-                elif message.text == u'Показать случайный':
-                    logger.debug(u'Показать случайный - OK')
-                    bot.send_message(message.chat.id, get_random_city())
+            elif message.text == u'Показать случайный':
+                logger.debug(u'Показать случайный - OK')
+                self.bot.send_message(message.chat.id, self.get_random_city)
 
-                elif not str(message.text).startswith('/'):
-                    logger.debug(message.text)
-                    lst_city_photos = get_city_ru(message.text)
-                    bot.send_message(message.chat.id, lst_city_photos)
-                else:
-                    logger.debug("Bad news!!!!!")
-
-        except Exception, e:
+            elif not str(message.text).startswith('/'):
+                logger.debug(message.text)
+                lst_city_photos = self.get_city_ru(message.text)
+                self.bot.send_message(message.chat.id, lst_city_photos)
+            else:
+                logger.debug("Bad news!!!!!")
+        except Exception as e:
             logger.debug(e)
 
-
-    def get_random_city():
+    @property
+    def get_random_city(self):
         """
             Get photos by random city ID
             :return: string of photos URLs
@@ -65,11 +57,11 @@ class CityPhotoDialog:
             city = Cities.objects.random()
             return 'City name: {0}, City URL: {1}, Author of photos: {2}' \
                 .format(city.city_name, city.city_url, city.author)
-        except Exception, e:
+        except Exception as e:
             logger.debug('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
 
-
+    @staticmethod
     def get_city_ru(city_name):
         """
             Get photos by city name(RU version)
@@ -84,7 +76,7 @@ class CityPhotoDialog:
         except Cities.DoesNotExist:
             return 'К сожалению нет такого города... :('
 
-
+    @staticmethod
     def get_city_en(city_name):
         """
             Get photos by city name(english version)
@@ -95,7 +87,7 @@ class CityPhotoDialog:
             city = Cities.objects.get(city_name_en=city_name)
             return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
                    .format(city.city_name, city.city_url, city.author)
-        except Cities.DoesNotExist, e:
+        except Cities.DoesNotExist as e:
             logger.debug("Handle ERROR: {0}".format(e))
             return 'К сожалению нет такого города... :('
 
