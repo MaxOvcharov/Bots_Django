@@ -21,7 +21,7 @@ import keyboards
 bot = telebot.TeleBot(BOT_TOKEN)
 get_city_photo = CityPhotoDialog(bot)
 logger = logging.getLogger('telegram')
-global dialog_data, context
+dialog_data = {}
 
 
 class CommandReceiveView(APIView):
@@ -31,12 +31,15 @@ class CommandReceiveView(APIView):
         """
             Handler of all telegram commands
         """
+        global dialog_data
         try:
             data = request.data
             context = ContextHandler(data)
             dialog_data = context.context_serializer()
             update = telebot.types.Update.de_json(data)
             bot.process_new_updates([update])
+            logger.debug('DIALOG: {}\n'.format(dialog_data))
+            logger.debug('CONTEXT: {}\n'.format(context))
             return Response(status=status.HTTP_200_OK)
         except ValueError:
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
@@ -104,9 +107,6 @@ class CommandReceiveView(APIView):
     # if dialog_data['command'].startswith('/') and \
     #                dialog_data['step'] == 0:
 try:
-    logger.debug('DIALOG: {}\n'.format(dialog_data))
-    logger.debug('CONTEXT: {}\n'.format(context))
-
     # Handle '/help' command
     @bot.message_handler(commands=['help'])
     def send_help_info(message):
