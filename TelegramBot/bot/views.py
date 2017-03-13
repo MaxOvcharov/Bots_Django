@@ -40,9 +40,9 @@ class CommandReceiveView(APIView):
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            if update.message.text.startswith('/'):
-            #if dialog_data['command'].startswith('/') and \
-            #                dialog_data['step'] == 0:
+            # if dialog_data['command'].startswith('/'):
+            if dialog_data['command'].startswith('/') and \
+                           dialog_data['step'] == 0:
 
                 logger.debug('DIALOG: {}\n'.format(dialog_data))
                 logger.debug('CONTEXT: {}\n'.format(context))
@@ -89,6 +89,7 @@ class CommandReceiveView(APIView):
             return Response(status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(e)
+            return Response(status=status.HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ModelViewSet):
