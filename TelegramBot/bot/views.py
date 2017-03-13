@@ -44,12 +44,12 @@ class CommandReceiveView(APIView):
             # if dialog_data['command'].startswith('/') and \
             #                dialog_data['step'] == 0:
 
-                # logger.debug('DIALOG: {}\n'.format(dialog_data))
-                # logger.debug('CONTEXT: {}\n'.format(context))
-                # logger.debug('UPDATE_STEP: {}\n'.format(update.message))
+            logger.debug('DIALOG: {}\n'.format(dialog_data))
+            logger.debug('CONTEXT: {}\n'.format(context))
+            logger.debug('UPDATE_STEP: {}\n'.format(update.message))
 
-                # Handle '/help' command
-            @bot.message_handler(commands=['help'] and dialog_data['step'] == 0)
+            # Handle '/help' command
+            @bot.message_handler(commands=['help'])
             def send_help_info(message):
                 logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
                 bot.send_message(message.chat.id,
@@ -62,7 +62,7 @@ class CommandReceiveView(APIView):
                                   /city - показать фото нужного города;\n"""))
 
             # Handle '/start' command
-            @bot.message_handler(commands=['start'] and dialog_data['step'] == 0)
+            @bot.message_handler(commands=['start'])
             def send_welcome(message):
                 logger.info('START: {0}\n\n\n'.format(message.chat.id))
                 markup = keyboards.markup_city_finder()
@@ -72,7 +72,8 @@ class CommandReceiveView(APIView):
                                   Какой город мне найти?"""), reply_markup=markup)
                 DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
 
-            @bot.message_handler(commands=['city'] and dialog_data['step'] == 0)
+            # Handle '/city' command
+            @bot.message_handler(commands=['city'])
             def send_city_name(message):
                 logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
                 markup = keyboards.markup_city_finder()
