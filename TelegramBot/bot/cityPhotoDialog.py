@@ -22,7 +22,7 @@ class CityPhotoDialog(object):
         :return: None
         """
         try:
-            logger.debug("CITY_PHOTO: {}\n".format(message.text))
+            logger.debug("CITY_PHOTO_STEP1: {}\n".format(message.text))
             if message.text == 'Определить по Вашим геоданным':
                 logger.debug("LOCATION: {}".format(message.location))
                 geo_data = geocoder.yandex([message.location.latitude,
@@ -38,8 +38,8 @@ class CityPhotoDialog(object):
                 logger.debug('RANDOM_CITY: {}'.format(message.text))
                 self.bot.send_message(message.chat.id, self.get_random_city)
             elif not str(message.text).startswith('/'):
-                logger.debug(message.text)
-                lst_city_photos = self.get_city_ru(message.text)
+                logger.debug("HANDLE_CITY: {}".format(message.text))
+                lst_city_photos = self.get_city_ru(str(message.text).encode("utf-8"))
                 self.bot.send_message(message.chat.id, lst_city_photos)
             else:
                 logger.debug("Bad news!!!!!")
@@ -68,7 +68,7 @@ class CityPhotoDialog(object):
             :return: string of photos URLs
         """
         try:
-            logger.debug(city_name)  # TODO: Add location check
+            logger.debug("CITY_RU: {}".format(city_name))
             city = Cities.objects.get(city_name=city_name)
             return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
                    .format(city.city_name, city.city_url, city.author)
