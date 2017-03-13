@@ -39,7 +39,7 @@ class CityPhotoDialog(object):
                 self.bot.send_message(message.chat.id, self.get_random_city)
             elif not str(message.text).startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
-                lst_city_photos = self.get_city_ru(str(message.text).encode("utf-8"))
+                lst_city_photos = self.get_city_ru(message.text.encode("utf-8", errors='ignore'))
                 self.bot.send_message(message.chat.id, lst_city_photos)
             else:
                 logger.debug("Bad news!!!!!")
