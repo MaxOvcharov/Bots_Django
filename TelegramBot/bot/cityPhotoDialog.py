@@ -24,7 +24,7 @@ class CityPhotoDialog(object):
         try:
             logger.debug("CITY_PHOTO_STEP1: {}\n".format(message.text))
             if message.text == 'Определить по Вашим геоданным':
-                logger.debug("LOCATION: {}".format(message.location))
+                logger.debug("LOCATION: {}\n\n\n".format(message.location))
                 geo_data = geocoder.yandex([message.location.latitude,
                                             message.location.longitude],
                                            method='reverse')
@@ -35,10 +35,10 @@ class CityPhotoDialog(object):
                 self.bot.send_message(message.chat.id, res)
 
             elif message.text == 'Показать случайный':
-                logger.debug('RANDOM_CITY: {}'.format(message.text))
+                logger.debug('RANDOM_CITY: {}\n\n\n'.format(message.text))
                 self.bot.send_message(message.chat.id, self.get_random_city)
             elif not str(message.text).startswith('/'):
-                logger.debug("HANDLE_CITY: {}".format(message.text))
+                logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 lst_city_photos = self.get_city_ru(str(message.text).encode("utf-8"))
                 self.bot.send_message(message.chat.id, lst_city_photos)
             else:
