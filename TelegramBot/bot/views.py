@@ -41,55 +41,55 @@ class CommandReceiveView(APIView):
 
         try:
             # if dialog_data['command'].startswith('/'):
-            if dialog_data['command'].startswith('/') and \
-                           dialog_data['step'] == 0:
+            # if dialog_data['command'].startswith('/') and \
+            #                dialog_data['step'] == 0:
 
-                logger.debug('DIALOG: {}\n'.format(dialog_data))
-                logger.debug('CONTEXT: {}\n'.format(context))
-                logger.debug('UPDATE_STEP: {}\n'.format(update.message))
+                # logger.debug('DIALOG: {}\n'.format(dialog_data))
+                # logger.debug('CONTEXT: {}\n'.format(context))
+                # logger.debug('UPDATE_STEP: {}\n'.format(update.message))
 
                 # Handle '/help' command
-                @bot.message_handler(commands=['help'])
-                def send_help_info(message):
-                    logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
-                    bot.send_message(message.chat.id,
-                                     ("""MaxTravelBot - Ваш личный помощник\n
-                                      в путешествиях по России.\n
-                                      Введите любой город России и получите\n
-                                      ТОП-10 фото достопримечательностей города.\n
-                                      Доступные команды:\n
-                                      /start - начало диалога с ботом;\n
-                                      /city - показать фото нужного города;\n"""))
+            @bot.message_handler(commands=['help'] and dialog_data['step'] == 0)
+            def send_help_info(message):
+                logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
+                bot.send_message(message.chat.id,
+                                 ("""MaxTravelBot - Ваш личный помощник\n
+                                  в путешествиях по России.\n
+                                  Введите любой город России и получите\n
+                                  ТОП-10 фото достопримечательностей города.\n
+                                  Доступные команды:\n
+                                  /start - начало диалога с ботом;\n
+                                  /city - показать фото нужного города;\n"""))
 
-                # Handle '/start' command
-                @bot.message_handler(commands=['start'])
-                def send_welcome(message):
-                    logger.info('START: {0}\n\n\n'.format(message.chat.id))
-                    markup = keyboards.markup_city_finder()
-                    bot.send_message(message.chat.id,
-                                     ("""Привет, я твой личный помощник и могу\n
-                                      показать тебе интересные места в городе.\n
-                                      Какой город мне найти?"""), reply_markup=markup)
-                    DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
+            # Handle '/start' command
+            @bot.message_handler(commands=['start'] and dialog_data['step'] == 0)
+            def send_welcome(message):
+                logger.info('START: {0}\n\n\n'.format(message.chat.id))
+                markup = keyboards.markup_city_finder()
+                bot.send_message(message.chat.id,
+                                 ("""Привет, я твой личный помощник и могу\n
+                                  показать тебе интересные места в городе.\n
+                                  Какой город мне найти?"""), reply_markup=markup)
+                DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
 
-                @bot.message_handler(commands=['city'])
-                def send_city_name(message):
-                    logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
-                    markup = keyboards.markup_city_finder()
-                    bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
-                    DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
+            @bot.message_handler(commands=['city'] and dialog_data['step'] == 0)
+            def send_city_name(message):
+                logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
+                markup = keyboards.markup_city_finder()
+                bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
+                DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
 
-            elif dialog_data['command'] in (u'/start', u'/city')\
-                    and dialog_data['step'] == 1:
-                logger.debug('DIALOG_STEP1: {}\n'.format(dialog_data))
-                logger.debug('CONTEXT_STEP1: {}\n'.format(context))
-                logger.debug('UPDATE_STEP1: {}\n'.format(update))
+            # elif dialog_data['command'] in (u'/start', u'/city')\
+            #         and dialog_data['step'] == 1:
+            #     logger.debug('DIALOG_STEP1: {}\n'.format(dialog_data))
+            #     logger.debug('CONTEXT_STEP1: {}\n'.format(context))
+            #     logger.debug('UPDATE_STEP1: {}\n'.format(update))
 
-                @bot.message_handler(func=lambda m: True)
-                def send_city_photo(message):
-                    logger.info('GET_CITY_PHOTO: {0}\n'.format(message.chat.id))
-                    get_city_photo.city_photo_dialog_handler(message)
-                    DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
+            @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1)
+            def send_city_photo(message):
+                logger.info('GET_CITY_PHOTO: {0}\n'.format(message.chat.id))
+                get_city_photo.city_photo_dialog_handler(message)
+                DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
             return Response(status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(e)
