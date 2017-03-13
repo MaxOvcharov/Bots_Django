@@ -53,13 +53,13 @@ class CommandReceiveView(APIView):
             def send_help_info(message):
                 logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
                 bot.send_message(message.chat.id,
-                                 ("""MaxTravelBot - Ваш личный помощник\n
-                                  в путешествиях по России.\n
-                                  Введите любой город России и получите\n
-                                  ТОП-10 фото достопримечательностей города.\n
-                                  Доступные команды:\n
-                                  /start - начало диалога с ботом;\n
-                                  /city - показать фото нужного города;\n"""))
+                                 ("MaxTravelBot - Ваш личный помощник\n"
+                                  "в путешествиях по России.\n"
+                                  "Введите любой город России и получите\n"
+                                  "ТОП-10 фото достопримечательностей города.\n"
+                                  "Доступные команды:\n"
+                                  "/start - начало диалога с ботом;\n"
+                                  "/city - показать фото нужного города;\n"))
 
             # Handle '/start' command
             @bot.message_handler(commands=['start'])
@@ -67,9 +67,9 @@ class CommandReceiveView(APIView):
                 logger.info('START: {0}\n\n\n'.format(message.chat.id))
                 markup = keyboards.markup_city_finder()
                 bot.send_message(message.chat.id,
-                                 ("""Привет, я твой личный помощник и могу\n
-                                  показать тебе интересные места в городе.\n
-                                  Какой город мне найти?"""), reply_markup=markup)
+                                 ("Привет, я твой личный помощник и могу\n"
+                                  "показать тебе интересные места в городе.\n"
+                                  "Какой город мне найти?"), reply_markup=markup)
                 DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
 
             # Handle '/city' command
