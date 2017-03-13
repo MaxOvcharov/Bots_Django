@@ -40,11 +40,13 @@ class CommandReceiveView(APIView):
             return Response('Wrong data in json', status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            if dialog_data['command'].startswith('/') and \
-                            dialog_data['step'] == 0:
+            if update.message.text.startswith('/'):
+            #if dialog_data['command'].startswith('/') and \
+            #                dialog_data['step'] == 0:
 
                 logger.debug('DIALOG: {}\n'.format(dialog_data))
                 logger.debug('CONTEXT: {}\n'.format(context))
+                logger.debug('UPDATE_STEP: {}\n'.format(update.message))
 
                 # Handle '/help' command
                 @bot.message_handler(commands=['help'])
@@ -76,15 +78,15 @@ class CommandReceiveView(APIView):
 
             elif dialog_data['command'] in (u'/start', u'/city')\
                     and dialog_data['step'] > 0:
-                logger.debug('DIALOG: {}\n'.format(dialog_data))
-                logger.debug('CONTEXT: {}\n'.format(context))
+                logger.debug('DIALOG_STEP1: {}\n'.format(dialog_data))
+                logger.debug('CONTEXT_STEP1: {}\n'.format(context))
+                logger.debug('UPDATE_STEP1: {}\n'.format(update))
 
                 @bot.message_handler(func=lambda m: True)
                 def send_city_photo(message):
                     logger.info('PHOTO: {0}\n\n\n'.format(message.chat.id))
                     get_city_photo.city_photo_dialog_handler(message)
                     DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
-
             return Response(status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(e)
