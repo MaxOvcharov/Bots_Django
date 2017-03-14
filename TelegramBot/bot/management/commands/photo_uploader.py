@@ -31,10 +31,15 @@ class Command(BaseCommand):
         try:
             for city in cities:
                 city_photos = list(CityPhotos.objects.filter(city=city[0]).values_list("photo_url", flat=True))
+                city_path = os.path.join(BASE_DIR, 'img', city[1])
+                if not os.path.exists(city_path):
+                    os.makedirs(city_path)
+                    logger.info('CITY --> {0}'.format(city[1]))
                 for city_photo in city_photos:
-                    current_dir = os.path.join(BASE_DIR, 'img', city[0], city_photo.split('/')[-1])
-                    response, content = h.request(city_photo)
-                    with open(current_dir, 'wb') as f:
-                        f.write(content)
+                    current_dir = os.path.join(BASE_DIR, 'img', city[1], city_photo.split('/')[-1])
+                    if not os.path.exists(current_dir):
+                        response, content = h.request(city_photo)
+                        with open(current_dir, 'wb') as f:
+                            f.write(content)
         except Exception, e:
-            logger.error(str(e) + '--> {0}'.format(city[0]))
+            logger.error(str(e) + '--> {0}'.format(city[1]))
