@@ -26,11 +26,11 @@ class CityPhotoDialog(object):
             logger.debug("CITY_PHOTO_STEP1: {}\n".format(message.text))
             if message.text == 'Показать любой':
                 logger.debug('RANDOM_CITY: {}\n\n\n'.format(message.text))
-                self.bot.send_message(message.chat.id, self.get_random_city, reply_markup=markup_hider())
+                self.bot.send_message(message.chat.id, self.get_random_city)
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 lst_city_photos = self.get_city_ru(message.text)
-                self.bot.send_message(message.chat.id, lst_city_photos, reply_markup=markup_hider())
+                self.bot.send_message(message.chat.id, lst_city_photos)
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
                 geo_data = geocoder.yandex([message.location.latitude,
