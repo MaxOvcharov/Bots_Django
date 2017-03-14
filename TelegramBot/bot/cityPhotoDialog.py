@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 import geocoder
 import logging
+from keyboards import markup_hider
 
 from models import Cities, CityPhotos
 
@@ -23,23 +24,21 @@ class CityPhotoDialog(object):
         """
         try:
             logger.debug("CITY_PHOTO_STEP1: {}\n".format(message.text))
-            if message.text == 'Показать случайный':
+            if message.text == 'Показать любой':
                 logger.debug('RANDOM_CITY: {}\n\n\n'.format(message.text))
-                self.bot.send_message(message.chat.id, self.get_random_city)
+                self.bot.send_message(message.chat.id, self.get_random_city, reply_markup=markup_hider())
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 lst_city_photos = self.get_city_ru(message.text)
-                self.bot.send_message(message.chat.id, lst_city_photos)
+                self.bot.send_message(message.chat.id, lst_city_photos, reply_markup=markup_hider())
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
                 geo_data = geocoder.yandex([message.location.latitude,
                                             message.location.longitude],
                                            method='reverse')
                 city_name = str(geo_data.city).encode('utf-8')
-                logger.debug(city_name)
                 res = self.get_city_en(city_name)
-                logger.debug(res)
-                self.bot.send_message(message.chat.id, res)
+                self.bot.send_message(message.chat.id, res, reply_markup=markup_hider())
             else:
                 logger.debug("Bad news!!!!!")
         except Exception as e:
