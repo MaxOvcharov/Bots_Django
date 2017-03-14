@@ -143,10 +143,10 @@ def update_city_photos_table(img_url_lst, city_name, author):
         city_path = os.path.join(BASE_DIR, 'img', city.city_name_en)
         if not os.path.exists(city_path):
             os.makedirs(city_path)
-            logger.info('CITY --> {0}'.format(city[1]))
+            logger.info('CITY --> {0}'.format(city.city_name_en))
 
         for url in img_url_lst:
-            current_dir = os.path.join(BASE_DIR, 'img', city[1], url.split('/')[-1])
+            current_dir = os.path.join(BASE_DIR, 'img', city.city_name_en, url.split('/')[-1])
             if not os.path.exists(current_dir):
                 response, content = h.request(url)
                 with open(current_dir, 'wb') as f:
