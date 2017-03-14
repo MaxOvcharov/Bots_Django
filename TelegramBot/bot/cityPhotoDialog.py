@@ -29,19 +29,22 @@ class CityPhotoDialog(object):
                 logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0], city_data[1]))
                 for photo_url in city_data[0][0:5]:
                     self.bot.send_photo(message.chat.id, open(photo_url, 'rb'), caption=city_data[1])
-                    #self.bot.send_message(message.chat.id, photo_url)
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
-                lst_city_photos = self.get_city_ru(message.text)
-                self.bot.send_message(message.chat.id, lst_city_photos)
+                city_data = self.get_city_ru(message.text)
+                for photo_url in city_data[0][0:5]:
+                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'), caption=city_data[1])
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
                 geo_data = geocoder.yandex([message.location.latitude,
                                             message.location.longitude],
                                            method='reverse')
                 city_name = str(geo_data.city).encode('utf-8')
-                res = self.get_city_en(city_name)
-                self.bot.send_message(message.chat.id, res, reply_markup=markup_hider())
+                city_data = self.get_city_en(city_name)
+                for photo_url in city_data[0][0:5]:
+                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                        caption=city_data[1],
+                                        reply_markup=markup_hider())
             else:
                 logger.debug("Bad news!!!!!")
         except Exception as e:
@@ -72,9 +75,10 @@ class CityPhotoDialog(object):
         try:
             logger.debug("CITY_RU: {0}-{1}".format(city_name, type(city_name)))
             city = Cities.objects.get(city_name=city_name)
-            return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
-                   .format(city.city_name, city.city_url, city.author)
-        except Cities.DoesNotExist:
+            city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
+            return city_photo, city.city_name
+        except Cities.DoesNotExist, e:
+            logger.debug('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
 
     @staticmethod
@@ -86,8 +90,8 @@ class CityPhotoDialog(object):
         """
         try:
             city = Cities.objects.get(city_name_en=city_name)
-            return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
-                   .format(city.city_name, city.city_url, city.author)
+            city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
+            return city_photo, city.city_name
         except Cities.DoesNotExist as e:
             logger.debug("Handle ERROR: {0}".format(e))
             return 'К сожалению нет такого города... :('
