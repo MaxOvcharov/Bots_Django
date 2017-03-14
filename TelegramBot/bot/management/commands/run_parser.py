@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import
 import geocoder
+import httplib2
+import os
 import re
 import requests
 import sys
@@ -9,6 +11,7 @@ import sys
 from BeautifulSoup import BeautifulSoup
 from bot.models import Cities, CityPhotos
 from django.core.management.base import BaseCommand
+from TelegramBot.settings import BASE_DIR
 
 import logging
 logger = logging.getLogger('cron')
@@ -134,11 +137,28 @@ def update_city_photos_table(img_url_lst, city_name, author):
         :return: None
     """
     try:
-        city_id = Cities.objects.get(city_name=city_name, author=author)
+        city = Cities.objects.get(city_name=city_name, author=author)
+        # Create if not exists dirs for city photos and save them into it
+        h = httplib2.Http('.cache')
+        city_path = os.path.join(BASE_DIR, 'img', city.city_name_en)
+        if not os.path.exists(city_path):
+            os.makedirs(city_path)
+            logger.info('CITY --> {0}'.format(city[1]))
+
         for url in img_url_lst:
-            update_photos = {'photo_url': url, 'city_id': city_id}
+            current_dir = os.path.join(BASE_DIR, 'img', city[1], url.split('/')[-1])
+            if not os.path.exists(current_dir):
+                response, content = h.request(url)
+                with open(current_dir, 'wb') as f:
+                    f.write(content)
+
+            update_photos = {'photo_url': url,
+                             'photo_path': current_dir,
+                             'city_id': city.id}
+
             CityPhotos.objects.update_or_create(photo_url=url,
-                                                city_id=city_id,
+                                                city_id=city.id,
+                                                photo_path=current_dir,
                                                 defaults=update_photos)
     except Cities.DoesNotExist:
         # ignore duplicate city ID

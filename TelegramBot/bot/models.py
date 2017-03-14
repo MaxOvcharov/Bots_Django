@@ -48,6 +48,7 @@ class Cities(models.Model):
 
 class CityPhotos(models.Model):
     photo_url = models.TextField(verbose_name="Ссылка на фото")
+    photo_path = models.TextField(verbose_name="Локальный путь к файлу")
     city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
 
     def __unicode__(self):

@@ -30,7 +30,7 @@ class Command(BaseCommand):
         city = ''
         try:
             for city in cities:
-                city_photos = list(CityPhotos.objects.filter(city=city[0]).values_list("photo_url", flat=True))
+                city_photos = list(CityPhotos.objects.filter(city_id=city[0]).values_list("photo_url", flat=True))
                 city_path = os.path.join(BASE_DIR, 'img', city[1])
                 if not os.path.exists(city_path):
                     os.makedirs(city_path)
