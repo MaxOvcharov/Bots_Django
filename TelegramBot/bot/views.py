@@ -77,7 +77,8 @@ try:
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
 
     # Handle second step of /city and /start commands
-    @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1)
+    @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1,
+                         content_types=['text', 'location'])
     def send_city_photo(message):
         logger.info('GET_CITY_PHOTO: {0}\n'.format(message.chat.id))
         get_city_photo.city_photo_dialog_handler(message)
