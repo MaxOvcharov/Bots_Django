@@ -52,6 +52,9 @@ class CityPhotoDialog(object):
         """
         try:
             city = Cities.objects.random()
+            city_photo = CityPhotos.objects.filter(city_id=city.id).\
+                value_list('photo_url', flat=True)
+            logger.debug("PHOTOS: {}\n".format(",".join(city_photo)))
             return 'City name: {0}, City URL: {1}, Author of photos: {2}' \
                 .format(city.city_name, city.city_url, city.author)
         except Exception as e:
