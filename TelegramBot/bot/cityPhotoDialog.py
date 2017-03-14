@@ -26,7 +26,7 @@ class CityPhotoDialog(object):
             if message.text == 'Показать случайный':
                 logger.debug('RANDOM_CITY: {}\n\n\n'.format(message.text))
                 self.bot.send_message(message.chat.id, self.get_random_city)
-            elif not str(message.text).startswith('/'):
+            elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 lst_city_photos = self.get_city_ru(message.text)
                 self.bot.send_message(message.chat.id, lst_city_photos)
