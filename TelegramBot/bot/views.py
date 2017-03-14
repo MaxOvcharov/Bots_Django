@@ -86,6 +86,7 @@ try:
 except Exception as e:
     logger.error(e)
 
+bot.send_photo(photo="", caption=)
 
 class UserViewSet(viewsets.ModelViewSet):
     """
