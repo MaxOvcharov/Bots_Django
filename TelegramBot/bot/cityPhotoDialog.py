@@ -39,7 +39,7 @@ class CityPhotoDialog(object):
                 self.bot.send_message(message.chat.id, self.get_random_city)
             elif not str(message.text).startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
-                lst_city_photos = self.get_city_ru(unicode(message.text, 'utf-8', errors='replace'))
+                lst_city_photos = self.get_city_ru(message.tex.encode('utf8', errors='replace'))
                 self.bot.send_message(message.chat.id, lst_city_photos)
             else:
                 logger.debug("Bad news!!!!!")
@@ -68,7 +68,7 @@ class CityPhotoDialog(object):
             :return: string of photos URLs
         """
         try:
-            logger.debug("CITY_RU: {}".format(city_name))
+            logger.debug("CITY_RU: {0}-{1}".format(city_name, type(city_name)))
             city = Cities.objects.get(city_name=city_name)
             return 'City name: {0}, City URL: {1}, Author of photos: {2}'\
                    .format(city.city_name, city.city_url, city.author)
