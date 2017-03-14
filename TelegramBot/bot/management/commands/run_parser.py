@@ -7,6 +7,7 @@ import os
 import re
 import requests
 import sys
+import time
 
 from BeautifulSoup import BeautifulSoup
 from bot.models import Cities, CityPhotos
@@ -101,8 +102,12 @@ def get_img_urls(images_href):
         for image in images_href:
             r = requests.get(image)
             soup = BeautifulSoup(r.text)
-            images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
-            img_lst.append(images_urls)
+            try:
+                time.sleep(0.5)
+                images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
+                img_lst.append(images_urls)
+            except IndexError:
+                logger.info('INDEX ERROR--> {0}'.format(image))
         return img_lst
     except Exception, e:
         logger.error(str(e) + '--> {0}'.format(images_href))
@@ -154,10 +159,10 @@ def update_city_photos_table(img_url_lst, city_name, author):
 
             update_photos = {'photo_url': url,
                              'photo_path': current_dir,
-                             'city_id': city.id}
+                             'city_id': city}
 
             CityPhotos.objects.update_or_create(photo_url=url,
-                                                city_id=city.id,
+                                                city_id=city,
                                                 photo_path=current_dir,
                                                 defaults=update_photos)
     except Cities.DoesNotExist:
