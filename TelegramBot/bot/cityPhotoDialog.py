@@ -27,8 +27,8 @@ class CityPhotoDialog(object):
             if message.text == 'Показать любой':
                 city_data = self.get_random_city
                 logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0], city_data[1]))
-                for photo_url in city_data[1][0:5]:
-                    self.bot.send_photo(message.chat.id, photo=photo_url, caption=city_data[0])
+                for photo_url in city_data[0][0:5]:
+                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'), caption=city_data[1])
                     #self.bot.send_message(message.chat.id, photo_url)
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
