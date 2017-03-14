@@ -26,7 +26,8 @@ class CityPhotoDialog(object):
             logger.debug("CITY_PHOTO_STEP1: {}\n".format(message.text))
             if message.text == 'Показать любой':
                 logger.debug('RANDOM_CITY: {}\n\n\n'.format(message.text))
-                self.bot.send_message(message.chat.id, self.get_random_city)
+                for photo_url in self.get_random_city[0:5]:
+                    self.bot.send_message(message.chat.id, photo_url)
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 lst_city_photos = self.get_city_ru(message.text)
@@ -52,11 +53,11 @@ class CityPhotoDialog(object):
         """
         try:
             city = Cities.objects.random()
-            city_photo = CityPhotos.objects.filter(city_id=city.id).\
-                value_list('photo_url', flat=True)
-            logger.debug("PHOTOS: {}\n".format(",".join(city_photo)))
-            return 'City name: {0}, City URL: {1}, Author of photos: {2}' \
-                .format(city.city_name, city.city_url, city.author)
+            city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_url", flat=True))
+            logger.debug("PHOTOS: {}\n".format(", ".join(city_photo)))
+            """return 'City name: {0}, City URL: {1}, Author of photos: {2}' \
+                .format(city.city_name, city.city_url, city.author)"""
+            return city_photo
         except Exception as e:
             logger.debug('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
