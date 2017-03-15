@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 import geocoder
 import logging
-from keyboards import markup_hider
+from keyboards import markup_hider, inline_go_to_city_url
 
 from models import Cities, CityPhotos
 
@@ -26,14 +26,25 @@ class CityPhotoDialog(object):
             logger.debug("CITY_PHOTO_STEP1: {}\n".format(message.text))
             if message.text == 'Показать любой':
                 city_data = self.get_random_city
-                logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0], city_data[1]))
+                logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0],
+                                                                   city_data[1]))
                 for photo_url in city_data[0][0:5]:
-                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'), caption=city_data[1])
+                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                        caption=city_data[1])
+                self.bot.send_message(message.chat.id, "{0} - подробнее здесь".format(city_data[1]),
+                                      reply_markup=inline_go_to_city_url(city_data[1],
+                                                                         city_data[2]))
+
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 city_data = self.get_city_ru(message.text)
                 for photo_url in city_data[0][0:5]:
-                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'), caption=city_data[1])
+                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                        caption=city_data[1])
+                self.bot.send_message(message.chat.id, "{0} - подробнее здесь".format(city_data[1]),
+                                      reply_markup=inline_go_to_city_url(city_data[1],
+                                                                         city_data[2]))
+                
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
                 geo_data = geocoder.yandex([message.location.latitude,
@@ -45,6 +56,9 @@ class CityPhotoDialog(object):
                     self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
                                         caption=city_data[1],
                                         reply_markup=markup_hider())
+                self.bot.send_message(message.chat.id, "{0} - подробнее здесь".format(city_data[1]),
+                                      reply_markup=inline_go_to_city_url(city_data[1],
+                                                                         city_data[2]))
             else:
                 logger.debug("Bad news!!!!!")
         except Exception as e:
@@ -60,7 +74,7 @@ class CityPhotoDialog(object):
             city = Cities.objects.random()
             city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
             logger.debug("PHOTOS: {}\n".format(", ".join(city_photo)))
-            return city_photo, city.city_name
+            return city_photo, city.city_name, city.city_url
         except Exception as e:
             logger.debug('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
@@ -76,7 +90,7 @@ class CityPhotoDialog(object):
             logger.debug("CITY_RU: {0}-{1}".format(city_name, type(city_name)))
             city = Cities.objects.get(city_name=city_name)
             city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
-            return city_photo, city.city_name
+            return city_photo, city.city_name, city.city_url
         except Cities.DoesNotExist, e:
             logger.debug('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
@@ -91,7 +105,7 @@ class CityPhotoDialog(object):
         try:
             city = Cities.objects.get(city_name_en=city_name)
             city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
-            return city_photo, city.city_name
+            return city_photo, city.city_name, city.city_url
         except Cities.DoesNotExist as e:
             logger.debug("Handle ERROR: {0}".format(e))
             return 'К сожалению нет такого города... :('
