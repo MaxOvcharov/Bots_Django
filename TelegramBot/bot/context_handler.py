@@ -22,11 +22,14 @@ class ContextHandler:
         :return: serialize object
         """
         # Check chat section in message
-        if self.context['message']['chat'] and \
-                self.context['message'].get('text', '').startswith('/'):
-            return self.get_chat_data
-        else:
-            return self.get_prev_step
+        try:
+            if self.context['message']['chat'] and \
+                    self.context['message'].get('text', '').startswith('/'):
+                return self.get_chat_data
+            else:
+                return self.get_prev_step
+        except Exception, e:
+            logger.debug("HANDLE_ERROR: {}\n\n\n".format(e))
 
     @property
     def get_chat_data(self):
