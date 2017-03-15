@@ -33,10 +33,12 @@ def inline_go_to_city_url(city_name, city_url):
     return markup
 
 
-def inline_city_vote():
+def inline_city_vote(like, unlike):
     markup = types.InlineKeyboardMarkup(row_width=2)
-    like_button = types.InlineKeyboardButton(text="\xF0\x9F\x91\x8D", callback_data="like")
-    unlike_button = types.InlineKeyboardButton(text="\xF0\x9F\x91\x8E", callback_data="unlike")
+    like_button = types.InlineKeyboardButton(text="\xF0\x9F\x91\x8D {0}".format(like),
+                                             callback_data="like")
+    unlike_button = types.InlineKeyboardButton(text="\xF0\x9F\x91\x8E {0}".format(unlike),
+                                               callback_data="unlike")
     markup.add(like_button, unlike_button)
     return markup
 

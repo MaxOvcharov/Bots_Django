@@ -29,6 +29,9 @@ class CityPhotoDialog(object):
                 logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0],
                                                                    city_data[1]))
                 self.send_city_photos(city_data, message)
+                self.bot.send_message(message.chat.id, "Вам понравилась информация?",
+                                      reply_markup=inline_city_vote(city_data[3],
+                                                                    city_data[4]))
 
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
@@ -75,7 +78,7 @@ class CityPhotoDialog(object):
             city = Cities.objects.random()
             city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
             logger.debug("PHOTOS: {}\n".format(", ".join(city_photo)))
-            return city_photo, city.city_name, city.city_url
+            return city_photo, city.city_name, city.city_url, city.like, city.unlike
         except Exception as e:
             logger.debug('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('

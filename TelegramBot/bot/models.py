@@ -30,6 +30,8 @@ class Cities(models.Model):
     geo_longitude_max = models.FloatField(null=True, blank=True, default=0.0)
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
+    like = models.IntegerField()
+    unlike = models.IntegerField()
     # Adds random method
     objects = UserManager()
 
