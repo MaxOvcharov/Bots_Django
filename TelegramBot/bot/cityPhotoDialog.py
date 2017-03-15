@@ -44,7 +44,7 @@ class CityPhotoDialog(object):
                 self.bot.send_message(message.chat.id, "{0} - подробнее здесь".format(city_data[1]),
                                       reply_markup=inline_go_to_city_url(city_data[1],
                                                                          city_data[2]))
-                
+
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
                 geo_data = geocoder.yandex([message.location.latitude,
@@ -52,13 +52,18 @@ class CityPhotoDialog(object):
                                            method='reverse')
                 city_name = str(geo_data.city).encode('utf-8')
                 city_data = self.get_city_en(city_name)
-                for photo_url in city_data[0][0:5]:
-                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
-                                        caption=city_data[1],
-                                        reply_markup=markup_hider())
-                self.bot.send_message(message.chat.id, "{0} - подробнее здесь".format(city_data[1]),
-                                      reply_markup=inline_go_to_city_url(city_data[1],
-                                                                         city_data[2]))
+                photo_urls = city_data[0][0:5]
+                last_photo_num = len(photo_urls) - 1
+                for i, photo_url in enumerate(photo_urls):
+                    if i != last_photo_num:
+                        self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                            caption=city_data[1],
+                                            reply_markup=markup_hider())
+                    else:
+                        self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                            caption=city_data[1],
+                                            reply_markup=inline_go_to_city_url(city_data[1],
+                                                                               city_data[2]))
             else:
                 logger.debug("Bad news!!!!!")
         except Exception as e:
