@@ -27,8 +27,16 @@ def markup_hider():
 
 def inline_go_to_city_url(city_name, city_url):
     markup = types.InlineKeyboardMarkup()
-    city_url_button = types.InlineKeyboardButton(text="Перейти на страницу: {0}".
+    city_url_button = types.InlineKeyboardButton(text="Перейти на страницу города: {0}".
                                                  format(city_name), url=city_url)
     markup.add(city_url_button)
+    return markup
+
+
+def inline_city_vote():
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    like_button = types.InlineKeyboardButton(text="\xF0\x9F\x91\x8D", callback_data="like")
+    unlike_button = types.InlineKeyboardButton(text="\xF0\x9F\x91\x8E", callback_data="unlike")
+    markup.add(like_button, unlike_button)
     return markup
 

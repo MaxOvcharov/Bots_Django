@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 import geocoder
 import logging
-from keyboards import markup_hider, inline_go_to_city_url
+from keyboards import markup_hider, inline_go_to_city_url, inline_city_vote
 
 from models import Cities, CityPhotos
 
@@ -34,6 +34,8 @@ class CityPhotoDialog(object):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 city_data = self.get_city_ru(message.text)
                 self.send_city_photos(city_data, message)
+                self.bot.send_message(message.chat.id, "Вам понравилась информация?",
+                                      reply_markup=inline_city_vote())
 
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))

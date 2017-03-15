@@ -83,6 +83,21 @@ try:
         logger.info('GET_CITY_PHOTO: {0}\n'.format(message.chat.id))
         get_city_photo.city_photo_dialog_handler(message)
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
+
+    # Handle vote callback
+    @bot.callback_query_handler(func=lambda call: True)
+    def callback_inline_vote(call):
+        if call.data == "like":
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
+            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+                                      text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
+        else:
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="Спасибо, мы будет стараться лучше \xF0\x9F\x99\x8F")
+            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+                                      text="Спасибо, мы будет стараться лучше \xF0\x9F\x99\x8F")
+
 except Exception as e:
     logger.error(e)
 
