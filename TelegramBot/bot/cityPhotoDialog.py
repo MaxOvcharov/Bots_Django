@@ -28,22 +28,12 @@ class CityPhotoDialog(object):
                 city_data = self.get_random_city
                 logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0],
                                                                    city_data[1]))
-                for photo_url in city_data[0][0:5]:
-                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
-                                        caption=city_data[1])
-                self.bot.send_message(message.chat.id, "{0} - подробнее здесь".format(city_data[1]),
-                                      reply_markup=inline_go_to_city_url(city_data[1],
-                                                                         city_data[2]))
+                self.send_city_photos(city_data, message)
 
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 city_data = self.get_city_ru(message.text)
-                for photo_url in city_data[0][0:5]:
-                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
-                                        caption=city_data[1])
-                self.bot.send_message(message.chat.id, "{0} - подробнее здесь".format(city_data[1]),
-                                      reply_markup=inline_go_to_city_url(city_data[1],
-                                                                         city_data[2]))
+                self.send_city_photos(city_data, message)
 
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
@@ -52,22 +42,26 @@ class CityPhotoDialog(object):
                                            method='reverse')
                 city_name = str(geo_data.city).encode('utf-8')
                 city_data = self.get_city_en(city_name)
-                photo_urls = city_data[0][0:5]
-                last_photo_num = len(photo_urls) - 1
-                for i, photo_url in enumerate(photo_urls):
-                    if i != last_photo_num:
-                        self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
-                                            caption=city_data[1],
-                                            reply_markup=markup_hider())
-                    else:
-                        self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
-                                            caption=city_data[1],
-                                            reply_markup=inline_go_to_city_url(city_data[1],
-                                                                               city_data[2]))
+                self.send_city_photos(city_data, message)
+
             else:
                 logger.debug("Bad news!!!!!")
         except Exception as e:
             logger.debug(e)
+
+    def send_city_photos(self, city_data, message):
+        photo_urls = city_data[0][0:5]
+        last_photo_num = len(photo_urls) - 1
+        for i, photo_url in enumerate(photo_urls):
+            if i != last_photo_num:
+                self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                    caption=city_data[1],
+                                    reply_markup=markup_hider())
+            else:
+                self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                    caption=city_data[1],
+                                    reply_markup=inline_go_to_city_url(city_data[1],
+                                                                       city_data[2]))
 
     @property
     def get_random_city(self):
