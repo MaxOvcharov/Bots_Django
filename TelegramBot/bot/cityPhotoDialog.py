@@ -50,6 +50,7 @@ class CityPhotoDialog(object):
                 city_name = str(geo_data.city).encode('utf-8')
                 city_data = self.get_city_en(city_name)
                 self.send_city_photos(city_data, message)
+                like_num = self.get_like_num(city_data[1])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
                                       reply_markup=inline_city_vote(like_num=like_num))
 
@@ -59,6 +60,13 @@ class CityPhotoDialog(object):
             logger.debug(e)
 
     def send_city_photos(self, city_data, message):
+        """
+        This function sends city photos and the last
+        photo sends with the URL of city
+        :param city_data: tuple - 0:list(city_photo), 1:city_name, 2:city.city_url
+        :param message: message from telegram
+        :return: None
+        """
         photo_urls = city_data[0][0:5]
         last_photo_num = len(photo_urls) - 1
         for i, photo_url in enumerate(photo_urls):

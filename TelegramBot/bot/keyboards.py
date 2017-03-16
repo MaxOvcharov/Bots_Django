@@ -36,7 +36,7 @@ def inline_go_to_city_url(city_name=None, city_url=None):
 def inline_city_vote(like=False, like_num=0):
     markup = types.InlineKeyboardMarkup(row_width=1)
     if like:
-        like_button = types.InlineKeyboardButton(text="\xE2\x9D\xA4 {0}".format(like_num + 1),
+        like_button = types.InlineKeyboardButton(text=u"\u2764 {0}".format(like_num + 1),
                                                  callback_data="like")
     else:
         like_button = types.InlineKeyboardButton(text=u"\u2764 {0}".format(like_num),

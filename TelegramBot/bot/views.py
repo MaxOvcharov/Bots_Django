@@ -9,7 +9,7 @@ from django.db.models import F
 
 from cityPhotoDialog import CityPhotoDialog
 from context_handler import ContextHandler
-from models import Cities, CityPhotos, DialogStepRouting
+from models import Cities, CityPhotos, DialogStepRouting, CityPoll
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -85,14 +85,21 @@ try:
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
 
     # Handle vote callback
-    @bot.callback_query_handler(func=lambda call: call.data == "like")
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("like"))
     def callback_inline_vote(call):
-        inline_markup = keyboards.inline_city_vote(like=True, like_num=200)
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                              text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C",
-                              reply_markup=inline_markup)
-        bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-                                  text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
+        city_name = call.data.split("_")[1]
+        already_voted = CityPoll.objects.filter(city__city_name=city_name, like=True)
+        if not already_voted:
+            like_num = CityPhotoDialog.get_like_num(city_name)
+            inline_markup = keyboards.inline_city_vote(like=True, like_num=like_num)
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C",
+                                  reply_markup=inline_markup)
+            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+                                      text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
+        else:
+            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+                                      text="Извинете, Вы уже проголосовали")
 
 except Exception as e:
     logger.error(e)
