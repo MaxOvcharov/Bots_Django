@@ -22,7 +22,7 @@ class UserManager(models.Manager):
 
 
 class Cities(models.Model):
-    city_name = models.CharField(max_length=80, unique=True, verbose_name="Название города")
+    city_name = models.CharField(max_length=80, unique=True, db_index=True, verbose_name="Название города")
     city_name_en = models.CharField(max_length=80, unique=True, verbose_name="Английское название города")
     geo_latitude_min = models.FloatField(null=True, blank=True, default=0.0)
     geo_latitude_max = models.FloatField(null=True, blank=True, default=0.0)
@@ -30,17 +30,19 @@ class Cities(models.Model):
     geo_longitude_max = models.FloatField(null=True, blank=True, default=0.0)
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
-    like = models.IntegerField()
-    unlike = models.IntegerField()
+    city_prefer = models.ManyToManyField(UserInfo, through='CityPolls',
+                                         verbose_name="Связь городов с пользователями")
     # Adds random method
     objects = UserManager()
 
     def __unicode__(self):
         return "City name(en): %s; City name: %s; Author: %s;\n" \
-               "Coordinate box[latitude: %s, %s; longitude: %s, %s]" % \
+               "Coordinate box[latitude: %s, %s; longitude: %s, %s]\n" \
+               "City URL: %s" % \
                (self.city_name_en, self.city_name, self.author,
                 self.geo_latitude_min, self.geo_latitude_max,
-                self.geo_longitude_min, self.geo_longitude_max)
+                self.geo_longitude_min, self.geo_longitude_max,
+                self.city_url)
 
     class Meta:
         db_table = 'cities'
@@ -61,8 +63,37 @@ class CityPhotos(models.Model):
         verbose_name_plural = "Фото городов"
 
 
+class CityPolls(models.Model):
+    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="ID пользователя")
+    city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
+    like = models.BooleanField(default=False, verbose_name="Нравится/Ненравится")
+
+    def __unicode__(self):
+        return "City ID: %s; User ID: %s; Like: %s;\n" % \
+               (self.city, self.user, self.like)
+
+    class Meta:
+        db_table = 'city_polls'
+        verbose_name_plural = "Голосовалка по городам"
+
+
+class UserInfo(models.Model):
+    first_name = models.CharField(max_length=150, verbose_name="Имя пользователя")
+    last_name = models.CharField(max_length=150, verbose_name="Фамилия пользователя")
+    username = models.CharField(max_length=150, verbose_name="Логин пользователя")
+    chat_id = models.IntegerField(db_index=True, verbose_name="Идентификационный номер чата")
+
+    def __unicode__(self):
+        return 'First name: %s; Last name: %s; Username: %s; Chat ID: %s' % \
+               (self.first_name, self.last_name, self.username, self.chat_id)
+
+    class Meta:
+        db_table = 'user_info'
+        verbose_name_plural = 'Список пользователей'
+
+
 class DialogStepRouting(models.Model):
-    chat_id = models.IntegerField(verbose_name="Идентификационный номер чата")
+    chat_id = models.IntegerField(db_index=True, verbose_name="Идентификационный номер чата")
     command = models.CharField(max_length=80, verbose_name="Текущая комманда")
     step = models.IntegerField(verbose_name="Номер шага")
     # Adds  method
@@ -77,16 +108,3 @@ class DialogStepRouting(models.Model):
         verbose_name_plural = 'Диалоги с пользователями'
 
 
-class UserInfo(models.Model):
-    first_name = models.CharField(max_length=150, verbose_name="Имя пользователя")
-    last_name = models.CharField(max_length=150, verbose_name="Фамилия пользователя")
-    username = models.CharField(max_length=150, verbose_name="Логин пользователя")
-    chat_id = models.IntegerField(verbose_name="Идентификационный номер чата")
-
-    def __unicode__(self):
-        return 'First name: %s; Last name: %s; Username: %s; Chat ID: %s' % \
-               (self.first_name, self.last_name, self.username, self.chat_id)
-
-    class Meta:
-        db_table = 'user_info'
-        verbose_name_plural = 'Список пользователей'

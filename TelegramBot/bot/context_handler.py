@@ -22,7 +22,7 @@ class ContextHandler:
         :return: serialize object
         """
         # Check chat section in message
-        try:
+        try:  # FIXME
             if self.context['message']['chat'] and \
                     self.context['message'].get('text', '').startswith('/'):
                 return self.get_chat_data

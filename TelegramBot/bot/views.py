@@ -85,18 +85,14 @@ try:
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
 
     # Handle vote callback
-    @bot.callback_query_handler(func=lambda call: True)
+    @bot.callback_query_handler(func=lambda call: call.data == "like")
     def callback_inline_vote(call):
-        if call.data == "like":
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+        inline_markup = keyboards.inline_city_vote(like=True, like_num=200)
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                              text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C",
+                              reply_markup=inline_markup)
+        bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                   text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
-            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-                                      text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
-        else:
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text="Спасибо, мы будем стараться лучше \xF0\x9F\x99\x8F")
-            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-                                      text="Спасибо, мы будем стараться лучше \xF0\x9F\x99\x8F")
 
 except Exception as e:
     logger.error(e)
