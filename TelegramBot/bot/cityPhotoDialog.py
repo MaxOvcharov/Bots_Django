@@ -30,6 +30,7 @@ class CityPhotoDialog(object):
                                                                    city_data[1]))
                 self.send_city_photos(city_data, message)
                 like_num = self.get_like_num(city_data[1])
+                logger.debug("LIKE_NUM: {}\n\n\n".format(like_num))
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
                                       reply_markup=inline_city_vote(like_num=like_num))
 
@@ -49,7 +50,6 @@ class CityPhotoDialog(object):
                 city_name = str(geo_data.city).encode('utf-8')
                 city_data = self.get_city_en(city_name)
                 self.send_city_photos(city_data, message)
-                like_num = self.get_like_num(city_data[1])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
                                       reply_markup=inline_city_vote(like_num=like_num))
 
@@ -94,7 +94,7 @@ class CityPhotoDialog(object):
             :param city_name: chosen city
             :return: int - number of likes
         """
-        return CityPoll.objects.filter(city__city_name=city_name, like=False).count()
+        return CityPoll.objects.filter(city__city_name=city_name, like=True).count()
 
     @staticmethod
     def get_city_ru(city_name):
