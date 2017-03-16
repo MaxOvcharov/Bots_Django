@@ -79,8 +79,8 @@ class CityPhotos(models.Model):
 
 
 class CityPolls(models.Model):
-    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="ID пользователя")
-    city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
+    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="ID Пользователя")
+    city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID Города")
     like = models.BooleanField(default=False, verbose_name="Нравится/Ненравится")
 
     def __unicode__(self):
