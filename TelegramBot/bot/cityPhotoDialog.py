@@ -5,7 +5,7 @@ import geocoder
 import logging
 from keyboards import markup_hider, inline_go_to_city_url, inline_city_vote
 
-from models import Cities, CityPhotos
+from models import Cities, CityPhotos, CityPoll
 
 logger = logging.getLogger('telegram')
 
@@ -29,15 +29,17 @@ class CityPhotoDialog(object):
                 logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0],
                                                                    city_data[1]))
                 self.send_city_photos(city_data, message)
+                like_num = self.get_like_num(city_data[1])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote())
+                                      reply_markup=inline_city_vote(like_num=like_num))
 
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 city_data = self.get_city_ru(message.text)
                 self.send_city_photos(city_data, message)
+                like_num = self.get_like_num(city_data[1])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote())
+                                      reply_markup=inline_city_vote(like_num=like_num))
 
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
@@ -47,6 +49,9 @@ class CityPhotoDialog(object):
                 city_name = str(geo_data.city).encode('utf-8')
                 city_data = self.get_city_en(city_name)
                 self.send_city_photos(city_data, message)
+                like_num = self.get_like_num(city_data[1])
+                self.bot.send_message(message.chat.id, "Вам понравилась информация?",
+                                      reply_markup=inline_city_vote(like_num=like_num))
 
             else:
                 logger.debug("Bad news!!!!!")
@@ -81,6 +86,15 @@ class CityPhotoDialog(object):
         except Exception as e:
             logger.debug('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
+
+    @staticmethod
+    def get_like_num(city_name):
+        """
+            Count number of likes for chosen city
+            :param city_name: chosen city
+            :return: int - number of likes
+        """
+        return CityPoll.objects.filter(city__city_name=city_name, like=False).count()
 
     @staticmethod
     def get_city_ru(city_name):
