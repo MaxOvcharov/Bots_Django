@@ -92,8 +92,6 @@ class CityPolls(models.Model):
         verbose_name_plural = "Голосовалка по городам"
 
 
-
-
 class DialogStepRouting(models.Model):
     chat_id = models.IntegerField(db_index=True, verbose_name="Идентификационный номер чата")
     command = models.CharField(max_length=80, verbose_name="Текущая комманда")
