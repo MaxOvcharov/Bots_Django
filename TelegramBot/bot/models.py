@@ -45,7 +45,7 @@ class Cities(models.Model):
     geo_longitude_max = models.FloatField(null=True, blank=True, default=0.0)
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
-    city_prefer = models.ManyToManyField(UserInfo, through='CityPolls',
+    city_prefer = models.ManyToManyField(UserInfo, through='CityPoll',
                                          verbose_name="Связь городов с пользователями")
     # Adds random method
     objects = UserManager()
@@ -68,7 +68,7 @@ class Cities(models.Model):
 class CityPhotos(models.Model):
     photo_url = models.TextField(verbose_name="Ссылка на фото")
     photo_path = models.TextField(verbose_name="Локальный путь к файлу")
-    city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
+    city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID Города")
 
     def __unicode__(self):
         return 'Photo URL: %s' % self.photo_url
@@ -78,7 +78,7 @@ class CityPhotos(models.Model):
         verbose_name_plural = "Фото городов"
 
 
-class CityPolls(models.Model):
+class CityPoll(models.Model):
     user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="ID Пользователя")
     city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID Города")
     like = models.BooleanField(default=False, verbose_name="Нравится/Ненравится")
@@ -88,7 +88,7 @@ class CityPolls(models.Model):
                (self.city, self.user, self.like)
 
     class Meta:
-        db_table = 'city_polls'
+        db_table = 'city_poll'
         verbose_name_plural = "Голосовалка по городам"
 
 
