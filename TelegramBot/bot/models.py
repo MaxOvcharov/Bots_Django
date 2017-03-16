@@ -68,7 +68,7 @@ class Cities(models.Model):
 class CityPhotos(models.Model):
     photo_url = models.TextField(verbose_name="Ссылка на фото")
     photo_path = models.TextField(verbose_name="Локальный путь к файлу")
-    city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID Города")
+    city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
 
     def __unicode__(self):
         return 'Photo URL: %s' % self.photo_url
@@ -79,8 +79,8 @@ class CityPhotos(models.Model):
 
 
 class CityPoll(models.Model):
-    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="ID Пользователя")
-    city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID Города")
+    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="ID пользователя")
+    city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
     like = models.BooleanField(default=False, verbose_name="Нравится/Ненравится")
 
     def __unicode__(self):
@@ -88,7 +88,7 @@ class CityPoll(models.Model):
                (self.city, self.user, self.like)
 
     class Meta:
-        db_table = 'city_polls'
+        db_table = 'city_poll'
         verbose_name_plural = "Голосовалка по городам"
 
 
