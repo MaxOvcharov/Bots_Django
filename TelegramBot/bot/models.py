@@ -21,6 +21,21 @@ class UserManager(models.Manager):
         self.filter(chat_id=chat_id).update(step=F('step') + 1)
 
 
+class UserInfo(models.Model):
+    first_name = models.CharField(max_length=150, verbose_name="Имя пользователя")
+    last_name = models.CharField(max_length=150, verbose_name="Фамилия пользователя")
+    username = models.CharField(max_length=150, verbose_name="Логин пользователя")
+    chat_id = models.IntegerField(db_index=True, verbose_name="Идентификационный номер чата")
+
+    def __unicode__(self):
+        return 'First name: %s; Last name: %s; Username: %s; Chat ID: %s' % \
+               (self.first_name, self.last_name, self.username, self.chat_id)
+
+    class Meta:
+        db_table = 'user_info'
+        verbose_name_plural = 'Список пользователей'
+
+
 class Cities(models.Model):
     city_name = models.CharField(max_length=80, unique=True, db_index=True, verbose_name="Название города")
     city_name_en = models.CharField(max_length=80, unique=True, verbose_name="Английское название города")
@@ -77,19 +92,6 @@ class CityPolls(models.Model):
         verbose_name_plural = "Голосовалка по городам"
 
 
-class UserInfo(models.Model):
-    first_name = models.CharField(max_length=150, verbose_name="Имя пользователя")
-    last_name = models.CharField(max_length=150, verbose_name="Фамилия пользователя")
-    username = models.CharField(max_length=150, verbose_name="Логин пользователя")
-    chat_id = models.IntegerField(db_index=True, verbose_name="Идентификационный номер чата")
-
-    def __unicode__(self):
-        return 'First name: %s; Last name: %s; Username: %s; Chat ID: %s' % \
-               (self.first_name, self.last_name, self.username, self.chat_id)
-
-    class Meta:
-        db_table = 'user_info'
-        verbose_name_plural = 'Список пользователей'
 
 
 class DialogStepRouting(models.Model):
