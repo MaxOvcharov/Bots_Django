@@ -88,7 +88,7 @@ class CityPoll(models.Model):
                (self.city, self.user, self.like)
 
     class Meta:
-        db_table = 'city_poll'
+        db_table = 'city_polls'
         verbose_name_plural = "Голосовалка по городам"
 
 
