@@ -88,7 +88,10 @@ try:
     @bot.callback_query_handler(func=lambda call: call.data.startswith(u"like_"))
     def callback_inline_vote(call):
         city_name = call.data.split("_")[1]
-        already_voted = CityPoll.objects.filter(city__city_name_en=city_name, like=True)
+        # Check is user already voted
+        already_voted = CityPoll.objects.filter(city__city_name_en=city_name,
+                                                user__chat_id=call.message.chat.id,
+                                                like=True)
         logger.debug('VOTE: city:{0}, already voted:{1}\n'.format(city_name, already_voted))
         if not already_voted and city_name:
             like_num = CityPhotoDialog.get_like_num(city_name)
@@ -102,7 +105,7 @@ try:
             CityPhotoDialog.save_ciy_poll(city_name=city_name, chat_id=call.message.chat.id)
         elif already_voted or not city_name:
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-                                      text="Извинете, Вы уже проголосовали")
+                                      text="Извините, Вы уже проголосовали")
 
 except Exception as e:
     logger.error('Handle ERROR: {0}'.format(e))
