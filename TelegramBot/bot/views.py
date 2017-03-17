@@ -47,7 +47,7 @@ try:
     # Handle '/help' command
     @bot.message_handler(commands=['help'])
     def send_help_info(message):
-        logger.info('HELP: {0}\n\n\n'.format(message.chat.id))
+        logger.debug('HELP: {0}\n\n\n'.format(message.chat.id))
         bot.send_message(message.chat.id,
                          ("MaxTravelBot - Ваш личный помощник\n"
                           "в путешествиях по России.\n"
@@ -60,7 +60,7 @@ try:
     # Handle '/start' command
     @bot.message_handler(commands=['start'])
     def send_welcome(message):
-        logger.info('START: {0}\n\n\n'.format(message.chat.id))
+        logger.debug('START: {0}\n\n\n'.format(message.chat.id))
         markup = keyboards.markup_city_finder()
         bot.send_message(message.chat.id,
                          ("Привет, я твой личный помощник и могу\n"
@@ -71,7 +71,7 @@ try:
     # Handle '/city' command
     @bot.message_handler(commands=['city'])
     def send_city_name(message):
-        logger.info('CITY: {0}\n\n\n'.format(message.chat.id))
+        logger.debug('CITY: {0}\n\n\n'.format(message.chat.id))
         markup = keyboards.markup_city_finder()
         bot.send_message(message.chat.id, "Какой город мне найти?", reply_markup=markup)
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=F('step') + 1)
@@ -80,15 +80,17 @@ try:
     @bot.message_handler(func=lambda m: True and dialog_data['step'] == 1,
                          content_types=['text', 'location'])
     def send_city_photo(message):
-        logger.info('GET_CITY_PHOTO: {0}\n'.format(message.chat.id))
+        logger.debug('GET_CITY_PHOTO: {0}\n'.format(message.chat.id))
         get_city_photo.city_photo_dialog_handler(message)
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
 
     # Handle vote callback
-    @bot.callback_query_handler(func=lambda call: call.data.startswith("like"))
+    @bot.callback_query_handler(func=lambda call: call.data.startswith(u"like_"))
     def callback_inline_vote(call):
+        logger.debug('VOTE_START: call:{0}\n'.format(call.data))
         city_name = call.data.split("_")[1]
         already_voted = CityPoll.objects.filter(city__city_name=city_name, like=True)
+        logger.debug('VOTE: city:{0}, already voted:{1}\n'.format(city_name, already_voted))
         if not already_voted:
             like_num = CityPhotoDialog.get_like_num(city_name)
             inline_markup = keyboards.inline_city_vote(like=True, like_num=like_num)
@@ -97,7 +99,7 @@ try:
                                   reply_markup=inline_markup)
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                       text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
-        else:
+        elif already_voted or not city_name:
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                       text="Извинете, Вы уже проголосовали")
 

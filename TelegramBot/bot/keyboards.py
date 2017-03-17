@@ -37,10 +37,10 @@ def inline_city_vote(like=False, like_num=0, city_name=""):
     markup = types.InlineKeyboardMarkup(row_width=1)
     if like:
         like_button = types.InlineKeyboardButton(text=u"\u2764 {0}".format(like_num + 1),
-                                                 callback_data="like_")
+                                                 callback_data="like_{0}".format(city_name))
     else:
         like_button = types.InlineKeyboardButton(text=u"\u2764 {0}".format(like_num),
-                                                 callback_data="like_")
+                                                 callback_data="like_{0}".format(city_name))
     markup.add(like_button)
     return markup
 
