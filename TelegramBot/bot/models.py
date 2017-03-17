@@ -37,8 +37,10 @@ class UserInfo(models.Model):
 
 
 class Cities(models.Model):
-    city_name = models.CharField(max_length=80, unique=True, db_index=True, verbose_name="Название города")
-    city_name_en = models.CharField(max_length=80, unique=True, verbose_name="Английское название города")
+    city_name = models.CharField(max_length=80, unique=True, db_index=True,
+                                 verbose_name="Название города")
+    city_name_en = models.CharField(max_length=80, unique=True,
+                                    verbose_name="Английское название города")
     geo_latitude_min = models.FloatField(null=True, blank=True, default=0.0)
     geo_latitude_max = models.FloatField(null=True, blank=True, default=0.0)
     geo_longitude_min = models.FloatField(null=True, blank=True, default=0.0)
@@ -46,6 +48,7 @@ class Cities(models.Model):
     city_url = models.TextField(verbose_name="Ссылка на город")
     author = models.CharField(max_length=60, verbose_name="Автор фотографий")
     city_prefer = models.ManyToManyField(UserInfo, through='CityPoll',
+                                         related_name='city_prefer',
                                          verbose_name="Связь городов с пользователями")
     # Adds random method
     objects = UserManager()
@@ -79,8 +82,12 @@ class CityPhotos(models.Model):
 
 
 class CityPoll(models.Model):
-    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, verbose_name="ID пользователя")
-    city = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
+    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE,
+                             related_name='city_poll',
+                             verbose_name="ID пользователя")
+    city = models.ForeignKey(Cities, on_delete=models.CASCADE,
+                             related_name='city_poll',
+                             verbose_name="ID города")
     like = models.BooleanField(default=False, verbose_name="Нравится/Ненравится")
 
     def __unicode__(self):
