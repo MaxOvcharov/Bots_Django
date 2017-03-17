@@ -89,7 +89,7 @@ try:
     def callback_inline_vote(call):
         logger.debug('VOTE_START: call:{0}\n'.format(call.data))
         city_name = call.data.split("_")[1]
-        already_voted = CityPoll.objects.filter(city__city_name=city_name, like=True)
+        already_voted = CityPoll.objects.filter(city__city_name_en=city_name, like=True)
         logger.debug('VOTE: city:{0}, already voted:{1}\n'.format(city_name, already_voted))
         if not already_voted:
             like_num = CityPhotoDialog.get_like_num(city_name)
