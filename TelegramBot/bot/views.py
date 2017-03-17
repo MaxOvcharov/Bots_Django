@@ -87,11 +87,10 @@ try:
     # Handle vote callback
     @bot.callback_query_handler(func=lambda call: call.data.startswith(u"like_"))
     def callback_inline_vote(call):
-        logger.debug('VOTE_START: call:{0}\n'.format(call.data))
         city_name = call.data.split("_")[1]
         already_voted = CityPoll.objects.filter(city__city_name_en=city_name, like=True)
         logger.debug('VOTE: city:{0}, already voted:{1}\n'.format(city_name, already_voted))
-        if not already_voted:
+        if not already_voted and city_name:
             like_num = CityPhotoDialog.get_like_num(city_name)
             inline_markup = keyboards.inline_city_vote(like=True, like_num=like_num)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
