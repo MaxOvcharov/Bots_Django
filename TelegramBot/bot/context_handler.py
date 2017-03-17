@@ -29,7 +29,7 @@ class ContextHandler:
             else:
                 return self.get_prev_step
         except Exception, e:
-            logger.debug("HANDLE_ERROR: {}\n\n\n".format(e))
+            logger.error("HANDLE_ERROR: {}\n\n\n".format(e))
 
     @property
     def get_chat_data(self):

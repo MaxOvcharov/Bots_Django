@@ -3,9 +3,11 @@
 from __future__ import unicode_literals
 import geocoder
 import logging
-from keyboards import markup_hider, inline_go_to_city_url, inline_city_vote
 
-from models import Cities, CityPhotos, CityPoll
+from django.core.exceptions import ObjectDoesNotExist
+
+from keyboards import markup_hider, inline_go_to_city_url, inline_city_vote
+from models import Cities, CityPhotos, CityPoll, UserInfo
 
 logger = logging.getLogger('telegram')
 
@@ -62,7 +64,7 @@ class CityPhotoDialog(object):
             else:
                 logger.debug("Bad news!!!!!")
         except Exception as e:
-            logger.debug(e)
+            logger.error('Handle ERROR: {0}'.format(e))
 
     def send_city_photos(self, city_data, message):
         """
@@ -87,6 +89,15 @@ class CityPhotoDialog(object):
                                                                        city_url=city_data[2]))
 
     @staticmethod
+    def save_ciy_poll(city_name, chat_id):
+        try:
+            user = UserInfo.objects.get(chat_id=chat_id)
+            city = Cities.objects.get(city_name_en=city_name)
+            city_poll = CityPoll.objects.create(user=user, city=city, like=True)
+        except ObjectDoesNotExist, e:
+            logger.error('Handle ERROR: {0}'.format(e))
+
+    @staticmethod
     def get_like_num(city_name):
         """
             Count number of likes for chosen city
@@ -107,7 +118,7 @@ class CityPhotoDialog(object):
             logger.debug("PHOTOS: {}\n".format(", ".join(city_photo)))
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Exception as e:
-            logger.debug('Handle ERROR: {0}'.format(e))
+            logger.error('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
 
     @staticmethod
@@ -123,7 +134,7 @@ class CityPhotoDialog(object):
             city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist, e:
-            logger.debug('Handle ERROR: {0}'.format(e))
+            logger.error('Handle ERROR: {0}'.format(e))
             return 'К сожалению нет такого города... :('
 
     @staticmethod
@@ -138,6 +149,6 @@ class CityPhotoDialog(object):
             city_photo = list(CityPhotos.objects.filter(city_id=city.id).values_list("photo_path", flat=True))
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist as e:
-            logger.debug("Handle ERROR: {0}".format(e))
+            logger.error("Handle ERROR: {0}".format(e))
             return 'К сожалению нет такого города... :('
 

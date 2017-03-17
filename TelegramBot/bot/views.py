@@ -99,12 +99,14 @@ try:
                                   reply_markup=inline_markup)
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                       text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
+            # Save the result of polling
+            CityPhotoDialog.save_ciy_poll(city_name=city_name, chat_id=call.message.chat.id)
         elif already_voted or not city_name:
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                       text="Извинете, Вы уже проголосовали")
 
 except Exception as e:
-    logger.error(e)
+    logger.error('Handle ERROR: {0}'.format(e))
 
 
 class UserViewSet(viewsets.ModelViewSet):
