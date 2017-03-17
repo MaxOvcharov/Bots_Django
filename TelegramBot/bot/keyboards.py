@@ -33,14 +33,14 @@ def inline_go_to_city_url(city_name=None, city_url=None):
     return markup
 
 
-def inline_city_vote(like=False, like_num=0):
+def inline_city_vote(like=False, like_num=0, city_name=""):
     markup = types.InlineKeyboardMarkup(row_width=1)
     if like:
         like_button = types.InlineKeyboardButton(text=u"\u2764 {0}".format(like_num + 1),
-                                                 callback_data="like")
+                                                 callback_data="like_")
     else:
         like_button = types.InlineKeyboardButton(text=u"\u2764 {0}".format(like_num),
-                                                 callback_data="like")
+                                                 callback_data="like_")
     markup.add(like_button)
     return markup
 

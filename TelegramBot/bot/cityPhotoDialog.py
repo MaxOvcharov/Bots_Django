@@ -32,7 +32,8 @@ class CityPhotoDialog(object):
                 like_num = self.get_like_num(city_data[1])
                 logger.debug("LIKE_NUM: {}\n\n\n".format(like_num))
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote(like_num=like_num))
+                                      reply_markup=inline_city_vote(like_num=like_num,
+                                                                    city_name=city_data[1]))
 
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
@@ -40,7 +41,8 @@ class CityPhotoDialog(object):
                 self.send_city_photos(city_data, message)
                 like_num = self.get_like_num(city_data[1])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote(like_num=like_num))
+                                      reply_markup=inline_city_vote(like_num=like_num,
+                                                                    city_name=city_data[1]))
 
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
@@ -52,7 +54,8 @@ class CityPhotoDialog(object):
                 self.send_city_photos(city_data, message)
                 like_num = self.get_like_num(city_data[1])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote(like_num=like_num))
+                                      reply_markup=inline_city_vote(like_num=like_num,
+                                                                    city_name=city_data[1]))
 
             else:
                 logger.debug("Bad news!!!!!")
