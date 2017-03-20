@@ -104,6 +104,8 @@ class CityPhotoDialog(object):
             city_poll = CityPoll.objects.create(user=user, city=city, like=True)
         except ObjectDoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
+        except Exception, e:
+            logger.error('Handle ERROR: {0}'.format(e))
 
     @staticmethod
     def get_city_like_num(city_name):
@@ -126,9 +128,11 @@ class CityPhotoDialog(object):
             logger.debug("SAVE NEWS POLL: news_id-{0},"
                          " chat_id-{1}".format(news_id, chat_id))
             user = UserInfo.objects.get(chat_id=chat_id)
-            news = News.objects.get(city_name_en=news_id)
+            news = News.objects.get(id=news_id)
             news_poll = NewsPoll.objects.create(user=user, news=news, like=True)
         except ObjectDoesNotExist, e:
+            logger.error('Handle ERROR: {0}'.format(e))
+        except Exception, e:
             logger.error('Handle ERROR: {0}'.format(e))
 
     @staticmethod
