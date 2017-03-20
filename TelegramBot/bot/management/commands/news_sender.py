@@ -31,6 +31,7 @@ class Command(BaseCommand):
             users (15/sec).
             Return: None
         """
+        logger.info('Start send news')
         today = datetime.datetime.today()
         user_chat_ids = UserInfo.objects.values_list('chat_id', flat=True)
         try:
@@ -41,7 +42,7 @@ class Command(BaseCommand):
                     bot.send_message(chat_id=chat_id,
                                      text=news.content,
                                      reply_markup=inline_news_vote())
-
+            logger.info('End send news')
         except ObjectDoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
         except Exception, e:
