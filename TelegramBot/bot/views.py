@@ -117,7 +117,7 @@ try:
                                                 like=True)
         logger.debug('NEWS_VOTE: news_id:{0}, already voted:{1}\n'.format(news_id, already_voted))
         if not already_voted and news_id:
-            like_num = CityPhotoDialog.get_city_like_num(news_id)
+            like_num = CityPhotoDialog.get_news_like_num(news_id)
             inline_markup = keyboards.inline_news_vote(like=True, like_num=like_num[0])
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text=like_num[1],
