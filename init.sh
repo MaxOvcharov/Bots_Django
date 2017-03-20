@@ -36,6 +36,7 @@ function systemd_setttings
 function cron_timetable
 {
     sudo cp -v run_parser_cron_timetable /etc/cron.d/
+    sudo cp -v news_sender_cron_timetable /etc/cron.d/
     sudo service cron restart
 }
 

@@ -9,7 +9,7 @@ from django.db.models import F
 
 from cityPhotoDialog import CityPhotoDialog
 from context_handler import ContextHandler
-from models import Cities, CityPhotos, DialogStepRouting, CityPoll
+from models import Cities, CityPhotos, DialogStepRouting, CityPoll, NewsPoll, News
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -84,17 +84,17 @@ try:
         get_city_photo.city_photo_dialog_handler(message)
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
 
-    # Handle vote callback
+    # Handle city vote callback
     @bot.callback_query_handler(func=lambda call: call.data.startswith(u"like_"))
-    def callback_inline_vote(call):
+    def callback_inline_city_vote(call):
         city_name = call.data.split("_")[1]
         # Check is user already voted
         already_voted = CityPoll.objects.filter(city__city_name_en=city_name,
                                                 user__chat_id=call.message.chat.id,
                                                 like=True)
-        logger.debug('VOTE: city:{0}, already voted:{1}\n'.format(city_name, already_voted))
+        logger.debug('CITY_VOTE: city:{0}, already voted:{1}\n'.format(city_name, already_voted))
         if not already_voted and city_name:
-            like_num = CityPhotoDialog.get_like_num(city_name)
+            like_num = CityPhotoDialog.get_city_like_num(city_name)
             inline_markup = keyboards.inline_city_vote(like=True, like_num=like_num)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C",
@@ -104,6 +104,29 @@ try:
             # Save the result of polling
             CityPhotoDialog.save_ciy_poll(city_name=city_name, chat_id=call.message.chat.id)
         elif already_voted or not city_name:
+            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+                                      text="Извините, Вы уже проголосовали")
+
+    # Handle news vote callback
+    @bot.callback_query_handler(func=lambda call: call.data.startswith(u"news_like_"))
+    def callback_inline_news_vote(call):
+        news_id = call.data.split("_")[-1]
+        # Check is user already voted
+        already_voted = NewsPoll.objects.filter(news__id=news_id,
+                                                user__chat_id=call.message.chat.id,
+                                                like=True)
+        logger.debug('NEWS_VOTE: news_id:{0}, already voted:{1}\n'.format(news_id, already_voted))
+        if not already_voted and news_id:
+            like_num = CityPhotoDialog.get_city_like_num(news_id)
+            inline_markup = keyboards.inline_news_vote(like=True, like_num=like_num[0])
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text=like_num[1],
+                                  reply_markup=inline_markup)
+            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+                                      text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
+            # Save the result of polling
+            CityPhotoDialog.save_news_poll(news_id=news_id, chat_id=call.message.chat.id)
+        elif already_voted or not news_id:
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                       text="Извините, Вы уже проголосовали")
 

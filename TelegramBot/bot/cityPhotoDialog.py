@@ -7,7 +7,7 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 
 from keyboards import markup_hider, inline_go_to_city_url, inline_city_vote
-from models import Cities, CityPhotos, CityPoll, UserInfo
+from models import Cities, CityPhotos, CityPoll, UserInfo, News, NewsPoll
 
 logger = logging.getLogger('telegram')
 
@@ -20,11 +20,11 @@ class CityPhotoDialog(object):
 
     def city_photo_dialog_handler(self, message):
         """
-        Handle next step of conversation after command input.
-        PS: city_data: tuple - 0:list(city_photo), 1:city_name,
-                               2:city.city_url, 3:city.city_name_en
-        :param message: message from main view
-        :return: None
+            Handle next step of conversation after command input.
+            PS: city_data: tuple - 0:list(city_photo), 1:city_name,
+                                   2:city.city_url, 3:city.city_name_en;
+            :param message: message from main view;
+            :return: None
         """
         try:
             logger.debug("CITY_PHOTO_STEP1: {}\n".format(message.text))
@@ -33,7 +33,7 @@ class CityPhotoDialog(object):
                 logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0],
                                                                    city_data[1]))
                 self.send_city_photos(city_data, message)
-                like_num = self.get_like_num(city_data[3])
+                like_num = self.get_city_like_num(city_data[3])
                 logger.debug("LIKE_NUM: {}\n\n\n".format(like_num))
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
                                       reply_markup=inline_city_vote(like_num=like_num,
@@ -43,7 +43,7 @@ class CityPhotoDialog(object):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 city_data = self.get_city_ru(message.text)
                 self.send_city_photos(city_data, message)
-                like_num = self.get_like_num(city_data[3])
+                like_num = self.get_city_like_num(city_data[3])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
                                       reply_markup=inline_city_vote(like_num=like_num,
                                                                     city_name=city_data[3]))
@@ -56,7 +56,7 @@ class CityPhotoDialog(object):
                 city_name = str(geo_data.city).encode('utf-8')
                 city_data = self.get_city_en(city_name)
                 self.send_city_photos(city_data, message)
-                like_num = self.get_like_num(city_data[3])
+                like_num = self.get_city_like_num(city_data[3])
                 self.bot.send_message(message.chat.id, "Вам понравилась информация?",
                                       reply_markup=inline_city_vote(like_num=like_num,
                                                                     city_name=city_data[3]))
@@ -68,12 +68,12 @@ class CityPhotoDialog(object):
 
     def send_city_photos(self, city_data, message):
         """
-        This function sends city photos and the last
-        photo sends with the URL of city
-        :param city_data: tuple - 0:list(city_photo), 1:city_name,
-                                  2:city.city_url, 3:city.city_name_en
-        :param message: message from telegram
-        :return: None
+            This function sends city photos and the last
+            photo sends with the URL of city
+            :param city_data: tuple - 0:list(city_photo), 1:city_name,
+                                      2:city.city_url, 3:city.city_name_en;
+            :param message: message from telegram;
+            :return: None
         """
         photo_urls = city_data[0][0:5]
         last_photo_num = len(photo_urls) - 1
@@ -90,6 +90,12 @@ class CityPhotoDialog(object):
 
     @staticmethod
     def save_ciy_poll(city_name, chat_id):
+        """
+            Save the result of city poll
+            :param city_name: city name(EN)
+            :param chat_id: chat ID
+            :return: None
+        """
         try:
             user = UserInfo.objects.get(chat_id=chat_id)
             city = Cities.objects.get(city_name_en=city_name)
@@ -98,13 +104,41 @@ class CityPhotoDialog(object):
             logger.error('Handle ERROR: {0}'.format(e))
 
     @staticmethod
-    def get_like_num(city_name):
+    def get_city_like_num(city_name):
         """
             Count number of likes for chosen city
-            :param city_name: chosen city
+            :param city_name: chosen city;
             :return: int - number of likes
         """
         return CityPoll.objects.filter(city__city_name_en=city_name, like=True).count()
+
+    @staticmethod
+    def save_news_poll(news_id, chat_id):
+        """
+            Save the result of news poll
+            :param news_id: news ID
+            :param chat_id: chat ID
+            :return: None
+        """
+        try:
+            user = UserInfo.objects.get(chat_id=chat_id)
+            news = News.objects.get(city_name_en=news_id)
+            news_poll = NewsPoll.objects.create(user=user, news=news, like=True)
+        except ObjectDoesNotExist, e:
+            logger.error('Handle ERROR: {0}'.format(e))
+
+    @staticmethod
+    def get_news_like_num(news_id):
+        """
+            Count number of likes for chosen news
+            and get news content
+            :param news_id: news ID;
+            :return: tuple: int - number of likes,
+                            str - news content
+        """
+        likes = NewsPoll.objects.filter(news__id=news_id, like=True).count()
+        news_content = News.objects.values_list('content', flat=True).get(pk=news_id)
+        return likes, news_content
 
     @property
     def get_random_city(self):

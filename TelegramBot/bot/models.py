@@ -9,9 +9,7 @@ from django.db.models import F
 
 
 class UserManager(models.Manager):
-    """
-        Useful user db-methods
-    """
+    """Useful user db-methods"""
     def random(self):
         count = self.aggregate(ids=Count('id'))['ids']
         random_index = randint(0, count - 1)
@@ -22,6 +20,7 @@ class UserManager(models.Manager):
 
 
 class UserInfo(models.Model):
+    """Information about users"""
     first_name = models.CharField(max_length=150, verbose_name="Имя пользователя")
     last_name = models.CharField(max_length=150, verbose_name="Фамилия пользователя")
     username = models.CharField(max_length=150, verbose_name="Логин пользователя")
@@ -37,6 +36,7 @@ class UserInfo(models.Model):
 
 
 class Cities(models.Model):
+    """Information about cities"""
     city_name = models.CharField(max_length=80, unique=True, db_index=True,
                                  verbose_name="Название города")
     city_name_en = models.CharField(max_length=80, unique=True,
@@ -69,6 +69,7 @@ class Cities(models.Model):
 
 
 class CityPhotos(models.Model):
+    """Information about city photos"""
     photo_url = models.TextField(verbose_name="Ссылка на фото")
     photo_path = models.TextField(verbose_name="Локальный путь к файлу")
     city_id = models.ForeignKey(Cities, on_delete=models.CASCADE, verbose_name="ID города")
@@ -82,6 +83,7 @@ class CityPhotos(models.Model):
 
 
 class CityPoll(models.Model):
+    """Information about how users like city photo"""
     user = models.ForeignKey(UserInfo, on_delete=models.CASCADE,
                              related_name='city_poll',
                              verbose_name="ID пользователя")
@@ -99,7 +101,45 @@ class CityPoll(models.Model):
         verbose_name_plural = "Голосовалка по городам"
 
 
+class News(models.Model):
+    """Information about news"""
+    content = models.TextField(default="", verbose_name="Текст новости")
+    post_date = models.DateTimeField(verbose_name="Дата и время публикации новости")
+    published = models.BooleanField(default=False, verbose_name="Публикация ности")
+    news_prefer = models.ManyToManyField(UserInfo, through='NewsPoll',
+                                         related_name='news_prefer',
+                                         verbose_name="Связь новостей с пользователями")
+
+    def __unicode__(self):
+        return "News: %s\n; Post date: %s; Published: %s;\n" % \
+               (self.content, self.post_date, self.published)
+
+    class Meta:
+        db_table = 'news'
+        verbose_name_plural = "Новости"
+
+
+class NewsPoll(models.Model):
+    """Information about how users like news"""
+    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE,
+                             related_name='news_poll',
+                             verbose_name="ID пользователя")
+    news = models.ForeignKey(News, on_delete=models.CASCADE,
+                             related_name='news_poll',
+                             verbose_name="ID новости")
+    like = models.BooleanField(default=False, verbose_name="Нравится/Ненравится")
+
+    def __unicode__(self):
+        return "News ID: %s; User ID: %s; Like: %s;\n" % \
+               (self.news, self.user, self.like)
+
+    class Meta:
+        db_table = 'news_poll'
+        verbose_name_plural = "Голосовалка по новостям"
+
+
 class DialogStepRouting(models.Model):
+    """Table with dialog step routing. Save previous  step of conversation"""
     chat_id = models.IntegerField(db_index=True, verbose_name="Идентификационный номер чата")
     command = models.CharField(max_length=80, verbose_name="Текущая комманда")
     step = models.IntegerField(verbose_name="Номер шага")
