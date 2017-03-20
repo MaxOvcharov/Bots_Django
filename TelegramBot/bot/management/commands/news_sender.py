@@ -35,14 +35,16 @@ class Command(BaseCommand):
         today = datetime.datetime.today()
         user_chat_ids = UserInfo.objects.values_list('chat_id', flat=True)
         try:
-            news_to_post = list(News.objects.filter(published=True).
+            news_to_post = list(News.objects.filter(published=False).
                                 filter(Q(post_date__lte=today) | Q(post_date=None)))
             for news in news_to_post:
                 for chat_id in user_chat_ids:
+                    logger.info('User ID: {0}, News text: {1}'.format(chat_id, news.context))
                     bot.send_message(chat_id=chat_id,
                                      text=news.content,
                                      reply_markup=inline_news_vote(),
                                      disable_notification=True)
+                News.objects.filter(id=news.id).update(published=True)
             logger.info('End send news')
         except ObjectDoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
