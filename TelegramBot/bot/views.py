@@ -118,10 +118,12 @@ try:
         logger.debug('NEWS_VOTE: news_id:{0}, already voted:{1}\n'.format(news_id, already_voted))
         if not already_voted and news_id:
             like_num = CityPhotoDialog.get_news_like_num(news_id)
-            inline_markup = keyboards.inline_news_vote(like=True, like_num=like_num[0])
+            inline_markup = keyboards.inline_news_vote(like=True,
+                                                       like_num=like_num[0],
+                                                       news_id=news_id)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text=like_num[1],
-                                  reply_markup=inline_markup(news_id=news_id))
+                                  reply_markup=inline_markup)
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                       text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
             # Save the result of polling
