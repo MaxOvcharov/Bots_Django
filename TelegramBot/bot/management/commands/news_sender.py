@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 
 from bot.keyboards import inline_news_vote
-from bot.models import UserInfo, News, NewsPoll
+from bot.models import UserInfo, News
 from TelegramBot.settings import BOT_TOKEN
 
 import logging
@@ -41,7 +41,8 @@ class Command(BaseCommand):
                 for chat_id in user_chat_ids:
                     bot.send_message(chat_id=chat_id,
                                      text=news.content,
-                                     reply_markup=inline_news_vote())
+                                     reply_markup=inline_news_vote(),
+                                     disable_notification=True)
             logger.info('End send news')
         except ObjectDoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
