@@ -97,6 +97,8 @@ class CityPhotoDialog(object):
             :return: None
         """
         try:
+            logger.debug("SAVE CITY POLL: city name-{0},"
+                         " chat_id-{1}".format(city_name, chat_id))
             user = UserInfo.objects.get(chat_id=chat_id)
             city = Cities.objects.get(city_name_en=city_name)
             city_poll = CityPoll.objects.create(user=user, city=city, like=True)
@@ -121,6 +123,8 @@ class CityPhotoDialog(object):
             :return: None
         """
         try:
+            logger.debug("SAVE NEWS POLL: news_id-{0},"
+                         " chat_id-{1}".format(news_id, chat_id))
             user = UserInfo.objects.get(chat_id=chat_id)
             news = News.objects.get(city_name_en=news_id)
             news_poll = NewsPoll.objects.create(user=user, news=news, like=True)
