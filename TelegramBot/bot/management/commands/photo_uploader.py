@@ -34,7 +34,7 @@ class Command(BaseCommand):
                 city_path = os.path.join(BASE_DIR, 'img', city[1])
                 if not os.path.exists(city_path):
                     os.makedirs(city_path)
-                    logger.info('CITY --> {0}'.format(city[1]))
+                    logger.debug('CITY --> {0}'.format(city[1]))
                 for city_photo in city_photos:
                     current_dir = os.path.join(BASE_DIR, 'img', city[1], city_photo.split('/')[-1])
                     if not os.path.exists(current_dir):

@@ -34,7 +34,7 @@ class Command(BaseCommand):
         """
         city_name = ''
         try:
-            logger.info('Start parser')
+            logger.debug('Start parser')
             r = requests.get('https://www.phototowns.ru/all')
             soup = BeautifulSoup(r.text)
             cities = soup.findAll('div', style='width: 200px; height: 300px; float: left; margin: 10px;')
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                     update_cities_table(update_city)
                     # Update or create City_photos table
                     update_city_photos_table(img_url_lst, city_name, author)
-            logger.info('All cities are updated')
+            logger.debug('All cities are updated')
         except Exception, e:
             logger.error(str(e) + '--> {0}'.format(city_name))
 
@@ -107,7 +107,7 @@ def get_img_urls(images_href):
                 images_urls = soup.findAll('div', {'class': 'big_pic'})[0].findAll('img')[0]['src']
                 img_lst.append(images_urls)
             except IndexError:
-                logger.info('INDEX ERROR--> {0}'.format(image))
+                logger.debug('INDEX ERROR--> {0}'.format(image))
         return img_lst
     except Exception, e:
         logger.error(str(e) + '--> {0}'.format(images_href))
@@ -148,7 +148,7 @@ def update_city_photos_table(img_url_lst, city_name, author):
         city_path = os.path.join(BASE_DIR, 'img', city.city_name_en)
         if not os.path.exists(city_path):
             os.makedirs(city_path)
-            logger.info('CITY --> {0}'.format(city.city_name_en))
+            logger.debug('CITY --> {0}'.format(city.city_name_en))
 
         for url in img_url_lst:
             current_dir = os.path.join(BASE_DIR, 'img', city.city_name_en, url.split('/')[-1])
@@ -168,6 +168,6 @@ def update_city_photos_table(img_url_lst, city_name, author):
     except Cities.DoesNotExist:
         # ignore duplicate city ID
         pass
-    except CityPhotos.DoesNotExist, e2:
-        logger.error(str(e2) + '--> {0}'.format(city_name))
+    except CityPhotos.DoesNotExist, e:
+        logger.error(str(e) + '--> {0}'.format(city_name))
 

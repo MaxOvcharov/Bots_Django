@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import sys
 import datetime
+import time
 import telebot
 
 from django.db.models import Q
@@ -19,6 +20,7 @@ logger = logging.getLogger('cron')
 reload(sys)
 sys.setdefaultencoding('utf-8')
 bot = telebot.TeleBot(BOT_TOKEN)
+MAX_PER_SEC = 30
 
 
 class Command(BaseCommand):
@@ -31,21 +33,25 @@ class Command(BaseCommand):
             users (15/sec).
             Return: None
         """
-        logger.info('Start send news')
         today = datetime.datetime.today()
         user_chat_ids = UserInfo.objects.values_list('chat_id', flat=True)
         try:
             news_to_post = list(News.objects.filter(published=False).
                                 filter(Q(post_date__lte=today) | Q(post_date=None)))
             for news in news_to_post:
+                time_started = time.time()
+                messages_sent = 0
                 for chat_id in user_chat_ids:
-                    logger.info('User ID: {0}, News text: {1}'.format(chat_id, news.content))
+                    logger.debug('User ID: {0}, News text: {1}'.format(chat_id, news.content))
+                    if messages_sent / (time.time() - time_started) >= MAX_PER_SEC:  # Rate condition
+                        logger.debug('SLEEP --> {0}'.format(messages_sent))
+                        time.sleep(0.07)
                     bot.send_message(chat_id=chat_id,
                                      text=news.content,
                                      reply_markup=inline_news_vote(news_id=news.id),
                                      disable_notification=True)
+                    messages_sent += 1
                 News.objects.filter(id=news.id).update(published=True)
-            logger.info('End send news')
         except ObjectDoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
         except Exception, e:
