@@ -23,7 +23,7 @@ def small_talk(message):
     ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
     request = ai.text_request()
     request.lang = 'ru'  # optional, default value equal 'en'
-    request.session_id = BOT_TOKEN
+    request.session_id = BOT_TOKEN[:35]
     request.query = message
 
     response = request.getresponse().read()
