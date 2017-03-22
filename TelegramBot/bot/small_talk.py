@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
+import logging
 import os.path
 import sys
-import json
-import pprint
 
 try:
     import apiai
@@ -14,37 +14,34 @@ except ImportError:
     )
     import apiai
 
-CLIENT_ACCESS_TOKEN = '3a54443227c44c73971ea5f8dd8c88cb'
+from TelegramBot.settings import BOT_TOKEN, CLIENT_ACCESS_TOKEN
+
+logger = logging.getLogger('telegram')
 
 
-def main():
+def small_talk(message):
     ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
     request = ai.text_request()
     request.lang = 'ru'  # optional, default value equal 'en'
-    request.session_id = "<SESSION ID, UNIQUE FOR EACH USER>"
-    request.query = "Привет Бот"
+    request.session_id = BOT_TOKEN
+    request.query = message
 
     response = request.getresponse().read()
     obj = json.loads(response, encoding='utf8')
-    pprint.pprint(obj)
-    print '#*#*#*#' * 12, '\n'
     try:
         alternate_result = obj.get('alternateResult')
         if not alternate_result:
             # If response with answer from domain(result) - Small Talk
             answer = obj.get('result').get('fulfillment').get('speech')
-            print answer, "DOMAIN1"
+            return answer
         else:
-            # If response with answer from agent(result)
-            small_talk = obj.get('alternateResult').get('fulfillment').get('speech')
-            if not small_talk:
+            domain = obj.get('alternateResult').get('fulfillment').get('speech')
+            if not domain:
+                # If response with answer from agent(result)
                 answer = obj.get('result').get('fulfillment').get('speech')
-                print answer, "AGENT1"
+                return answer
             else:
                 # If response with answer from domain(alternate result) - Small Talk
-                print small_talk, "DOMAIN2"
+                return domain
     except AttributeError, e:
-        print e
-
-if __name__ == '__main__':
-    main()
+        logger.error('Handle ERROR: {0}'.format(e))

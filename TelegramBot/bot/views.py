@@ -14,6 +14,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from small_talk import small_talk
 from serializers import UserSerializer, GroupSerializer, CityNamesSerializer, CityPhotosSerializer
 import keyboards
 
@@ -83,6 +84,12 @@ try:
         logger.debug('GET_CITY_PHOTO: {0}\n'.format(message.chat.id))
         get_city_photo.city_photo_dialog_handler(message)
         DialogStepRouting.objects.filter(chat_id=message.chat.id).update(step=0)
+
+    # Handle small talk via Api.ai
+    @bot.message_handler(func=lambda m: True, content_types=['text'])
+    def send_city_photo(message):
+        logger.debug('SMALL_TALK: {0}\n'.format(message.chat.id))
+        bot.send_message(message.chat.id, small_talk(message.text))
 
     # Handle city vote callback
     @bot.callback_query_handler(func=lambda call: call.data.startswith(u"like_"))
