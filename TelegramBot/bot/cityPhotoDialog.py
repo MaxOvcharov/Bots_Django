@@ -161,7 +161,7 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Exception as e:
             logger.error('Handle ERROR: {0}'.format(e))
-            return u'К сожалению нет такого города... :('
+            return "К сожалению нет такого города... :(".encode('utf-8').strip()
 
     @staticmethod
     def get_city_ru(city_name):
@@ -177,7 +177,7 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
-            return u'К сожалению нет такого города... :('
+            return 'К сожалению нет такого города... :('.encode('utf-8').strip()
 
     @staticmethod
     def get_city_en(city_name):
@@ -192,5 +192,5 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist as e:
             logger.error("Handle ERROR: {0}".format(e))
-            return u'К сожалению нет такого города... :('
+            return 'К сожалению нет такого города... :('.encode('utf-8').strip()
 
