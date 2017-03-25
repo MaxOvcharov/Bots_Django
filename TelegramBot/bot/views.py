@@ -2,9 +2,10 @@
 
 import telebot
 import logging
+import botan
 
 from django.contrib.auth.models import User, Group
-from TelegramBot.settings import BOT_TOKEN
+from TelegramBot.settings import BOT_TOKEN, BOTAN_API_KEY
 from django.db.models import F
 
 from cityPhotoDialog import CityPhotoDialog
@@ -57,6 +58,7 @@ try:
                           "Доступные команды:\n"
                           "/start - начало диалога с ботом;\n"
                           "/city - показать фото нужного города;\n"))
+        botan.track(BOTAN_API_KEY, message.chat.id, message, name="help_command")
 
     # Handle '/start' command
     @bot.message_handler(commands=['start'])
