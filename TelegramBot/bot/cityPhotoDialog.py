@@ -17,6 +17,7 @@ class CityPhotoDialog(object):
         super(CityPhotoDialog, self).__init__()
 
         self.bot = bot
+        self.bad_city_name_response = 'К сожалению нет такого города... :('
 
     def city_photo_dialog_handler(self, message):
         """
@@ -75,18 +76,21 @@ class CityPhotoDialog(object):
             :param message: message from telegram;
             :return: None
         """
-        photo_urls = city_data[0][0:5]
-        last_photo_num = len(photo_urls) - 1
-        for i, photo_url in enumerate(photo_urls):
-            if i != last_photo_num:
-                self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
-                                    caption=city_data[1],
-                                    reply_markup=markup_hider())
-            else:
-                self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
-                                    caption=city_data[1],
-                                    reply_markup=inline_go_to_city_url(city_name=city_data[1],
-                                                                       city_url=city_data[2]))
+        if city_data:
+            photo_urls = city_data[0][0:5]
+            last_photo_num = len(photo_urls) - 1
+            for i, photo_url in enumerate(photo_urls):
+                if i != last_photo_num:
+                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                        caption=city_data[1],
+                                        reply_markup=markup_hider())
+                else:
+                    self.bot.send_photo(message.chat.id, open(photo_url, 'rb'),
+                                        caption=city_data[1],
+                                        reply_markup=inline_go_to_city_url(city_name=city_data[1],
+                                                                           city_url=city_data[2]))
+        else:
+            self.bot.send_message(message.chat.id, self.bad_city_name_response)
 
     @staticmethod
     def save_ciy_poll(city_name, chat_id):
@@ -161,7 +165,7 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Exception as e:
             logger.error('Handle ERROR: {0}'.format(e))
-            return "К сожалению нет такого города... :(".encode('utf-8').strip()
+            return None
 
     @staticmethod
     def get_city_ru(city_name):
@@ -177,7 +181,7 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
-            return 'К сожалению нет такого города... :('.encode('utf-8').strip()
+            return None
 
     @staticmethod
     def get_city_en(city_name):
@@ -192,5 +196,5 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist as e:
             logger.error("Handle ERROR: {0}".format(e))
-            return 'К сожалению нет такого города... :('.encode('utf-8').strip()
+            return None
 
