@@ -43,7 +43,7 @@ class CityPhotoDialog(object):
                 else:
                     # No one city was found
                     self.bot.send_message(message.chat.id, self.bad_city_name_response,
-                                          repply_markup=markup_hider())
+                                          reply_markup=markup_hider())
 
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
@@ -57,7 +57,7 @@ class CityPhotoDialog(object):
                 else:
                     # No one city was found
                     self.bot.send_message(message.chat.id, self.bad_city_name_response,
-                                          repply_markup=markup_hider())
+                                          reply_markup=markup_hider())
 
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
@@ -75,7 +75,7 @@ class CityPhotoDialog(object):
                 else:
                     # No one city was found
                     self.bot.send_message(message.chat.id, self.bad_city_name_response,
-                                          repply_markup=markup_hider())
+                                          reply_markup=markup_hider())
 
             else:
                 logger.debug("Bad news!!!!!")
