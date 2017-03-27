@@ -35,13 +35,13 @@ def small_talk(message):
             answer = obj.get('result').get('fulfillment').get('speech')
             return answer
         else:
-            domain = obj.get('alternateResult').get('fulfillment').get('speech')
-            if not domain:
+            answer_from_domain = obj.get('alternateResult').get('fulfillment').get('speech')
+            if not answer_from_domain:
                 # If response with answer from agent(result)
                 answer = obj.get('result').get('fulfillment').get('speech')
                 return answer
             else:
                 # If response with answer from domain(alternate result) - Small Talk
-                return domain
+                return answer_from_domain
     except AttributeError, e:
         logger.error('Handle ERROR: {0}'.format(e))
