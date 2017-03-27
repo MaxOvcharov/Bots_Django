@@ -17,6 +17,7 @@ class CityPhotoDialog(object):
         super(CityPhotoDialog, self).__init__()
 
         self.bot = bot
+        self.bad_city_name_response = 'К сожалению нет такого города... :('
 
     def city_photo_dialog_handler(self, message):
         """
@@ -32,21 +33,31 @@ class CityPhotoDialog(object):
                 city_data = self.get_random_city
                 logger.debug('RANDOM_CITY: {0} - {1}\n\n\n'.format(city_data[0],
                                                                    city_data[1]))
-                self.send_city_photos(city_data, message)
-                like_num = self.get_city_like_num(city_data[3])
-                logger.debug("LIKE_NUM: {}\n\n\n".format(like_num))
-                self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote(like_num=like_num,
-                                                                    city_name=city_data[3]))
+                if city_data:
+                    self.send_city_photos(city_data, message)
+                    like_num = self.get_city_like_num(city_data[3])
+                    logger.debug("LIKE_NUM: {}\n\n\n".format(like_num))
+                    self.bot.send_message(message.chat.id, "Вам понравилась информация?",
+                                          reply_markup=inline_city_vote(like_num=like_num,
+                                                                        city_name=city_data[3]))
+                else:
+                    # No one city was found
+                    self.bot.send_message(message.chat.id, self.bad_city_name_response,
+                                          reply_markup=markup_hider())
 
             elif message.text and not message.text.startswith('/'):
                 logger.debug("HANDLE_CITY: {}\n\n\n".format(message.text))
                 city_data = self.get_city_ru(message.text)
-                self.send_city_photos(city_data, message)
-                like_num = self.get_city_like_num(city_data[3])
-                self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote(like_num=like_num,
-                                                                    city_name=city_data[3]))
+                if city_data:
+                    self.send_city_photos(city_data, message)
+                    like_num = self.get_city_like_num(city_data[3])
+                    self.bot.send_message(message.chat.id, "Вам понравилась информация?",
+                                          reply_markup=inline_city_vote(like_num=like_num,
+                                                                        city_name=city_data[3]))
+                else:
+                    # No one city was found
+                    self.bot.send_message(message.chat.id, self.bad_city_name_response,
+                                          reply_markup=markup_hider())
 
             elif message.location:
                 logger.debug("LOCATION: {}\n\n\n".format(message.location))
@@ -55,11 +66,16 @@ class CityPhotoDialog(object):
                                            method='reverse')
                 city_name = str(geo_data.city).encode('utf-8')
                 city_data = self.get_city_en(city_name)
-                self.send_city_photos(city_data, message)
-                like_num = self.get_city_like_num(city_data[3])
-                self.bot.send_message(message.chat.id, "Вам понравилась информация?",
-                                      reply_markup=inline_city_vote(like_num=like_num,
-                                                                    city_name=city_data[3]))
+                if city_data:
+                    self.send_city_photos(city_data, message)
+                    like_num = self.get_city_like_num(city_data[3])
+                    self.bot.send_message(message.chat.id, "Вам понравилась информация?",
+                                          reply_markup=inline_city_vote(like_num=like_num,
+                                                                        city_name=city_data[3]))
+                else:
+                    # No one city was found
+                    self.bot.send_message(message.chat.id, self.bad_city_name_response,
+                                          reply_markup=markup_hider())
 
             else:
                 logger.debug("Bad news!!!!!")
@@ -161,7 +177,7 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Exception as e:
             logger.error('Handle ERROR: {0}'.format(e))
-            return 'К сожалению нет такого города... :('
+            return None
 
     @staticmethod
     def get_city_ru(city_name):
@@ -177,7 +193,7 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist, e:
             logger.error('Handle ERROR: {0}'.format(e))
-            return 'К сожалению нет такого города... :('
+            return None
 
     @staticmethod
     def get_city_en(city_name):
@@ -192,5 +208,5 @@ class CityPhotoDialog(object):
             return city_photo, city.city_name, city.city_url, city.city_name_en
         except Cities.DoesNotExist as e:
             logger.error("Handle ERROR: {0}".format(e))
-            return 'К сожалению нет такого города... :('
+            return None
 

@@ -20,6 +20,11 @@ logger = logging.getLogger('telegram')
 
 
 def small_talk(message):
+    """
+        This method connect to Api.ai Small Talk domain
+        :param message: input message
+        :return: output message from Api.ai
+    """
     ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
     request = ai.text_request()
     request.lang = 'ru'  # optional, default value equal 'en'
@@ -45,3 +50,12 @@ def small_talk(message):
                 return answer_from_domain
     except AttributeError, e:
         logger.error('Handle ERROR: {0}'.format(e))
+
+
+def main():
+    message = raw_input("Введите фразу: ")
+    # message = 'Как тебя зовут'
+    print small_talk(message)
+
+if __name__ == '__main__':
+    main()
