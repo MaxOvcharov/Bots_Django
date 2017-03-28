@@ -49,7 +49,8 @@ class Command(BaseCommand):
                     bot.send_message(chat_id=chat_id,
                                      text=news.content,
                                      reply_markup=inline_news_vote(news_id=news.id),
-                                     disable_notification=True)
+                                     disable_notification=True,
+                                     parse_mode="HTML")
                     messages_sent += 1
                 News.objects.filter(id=news.id).update(published=True)
         except ObjectDoesNotExist, e:
