@@ -132,7 +132,8 @@ try:
                                                        news_id=news_id)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   text=like_num[1],
-                                  reply_markup=inline_markup)
+                                  reply_markup=inline_markup,
+                                  parse_mode="HTML")
             bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
                                       text="Спасибо, нам очень приятно \xF0\x9F\x92\x8C")
             # Save the result of polling
